@@ -1,12 +1,8 @@
 
 .env
 
-playlists.txt
-
 .cache
 
-track_info.csv
+*.txt
 
-youtube.com_cookies.txt
-
-DEBUG.csv
+*.csv

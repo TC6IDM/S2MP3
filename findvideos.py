@@ -9,6 +9,8 @@ from pytube import YouTube
 import secrets
 import string
 from time import sleep
+import random
+import string
 import time
 from tkinter import E
 import urllib.request
@@ -456,7 +458,9 @@ USERNAME = os.getenv("USERNAME", "")
 COOKIE_FILE = os.getenv("COOKIE_FILE", "")
 PLAYLIST_FILE_NAME = os.getenv("PLAYLIST_FILE_NAME", "")
 
-if (exists(DEBUG_FILE_NAME)): os.remove(DEBUG_FILE_NAME)
+letters = string.digits
+
+if (exists(DEBUG_FILE_NAME)): os.rename(DEBUG_FILE_NAME, 'DEBUG - ' + ' '.join(random.choice(letters) for i in range(10)) + ' .csv')
 
 reallydone = False
 while not reallydone:
