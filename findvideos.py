@@ -183,13 +183,21 @@ def get_videos(artist,song):
         
 
         s = Search(totalQ)
-        if (exists(DEBUG_FILE_NAME)): os.remove(DEBUG_FILE_NAME)
-        for i in s.results:
-            if not exists(DEBUG_FILE_NAME): 
-                with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
-                    writer = csv.writer(file, lineterminator = '\n')
-                    writer.writerow(["VideoID","title","Length"])
+        if (exists(DEBUG_FILE_NAME)): 
+            with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
+                writer = csv.writer(file, lineterminator = '\n')
+                writer.writerow([" "," "," "])
+                writer.writerow([" "," "," "])
+                writer.writerow([" "," "," "])
+                writer.writerow([" "," "," "])
+                writer.writerow([" "," "," "])
                 file.close()
+                
+        with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
+            writer = csv.writer(file, lineterminator = '\n')
+            writer.writerow(["VideoID","title","Length"])
+            file.close()
+        for i in s.results:                
             with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
                 writer = csv.writer(file, lineterminator = '\n')
                 writer.writerow([i.video_id,i.title,i.length*1000])
@@ -448,132 +456,139 @@ USERNAME = os.getenv("USERNAME", "")
 COOKIE_FILE = os.getenv("COOKIE_FILE", "")
 PLAYLIST_FILE_NAME = os.getenv("PLAYLIST_FILE_NAME", "")
 
-file = open(PLAYLIST_FILE_NAME,'r')
-for currentPlaylist in file.readlines():
-    #removes \n from the end of the playlist
-    done=False
-    # if (exists(DEBUG_FILE_NAME)): os.remove(DEBUG_FILE_NAME)
-    while not done: #while there is still stuff in the playlist, loop through playlist
-        playlistName = checkPlaylist(currentPlaylist)
-        f = open(OUTPUT_FILE_NAME,"r",encoding="utf-8")
-        lines = f.readlines()
-        f.close()
-        #delets playlist if there is nothing on there
-        if len(lines) == 0 :
-            # sleep(10)
+if (exists(DEBUG_FILE_NAME)): os.remove(DEBUG_FILE_NAME)
+
+reallydone = False
+while not reallydone:
+    reallydone = True
+    file = open(PLAYLIST_FILE_NAME,'r')
+    for currentPlaylist in file.readlines():
+        #removes \n from the end of the playlist
+        done=False
+        # if (exists(DEBUG_FILE_NAME)): os.remove(DEBUG_FILE_NAME)
+        while not done: #while there is still stuff in the playlist, loop through playlist
+            playlistName = checkPlaylist(currentPlaylist)
+            f = open(OUTPUT_FILE_NAME,"r",encoding="utf-8")
+            lines = f.readlines()
             f.close()
-            os.remove(OUTPUT_FILE_NAME)
-            prPurple("Playlist : "+playlistName+" Done\n") 
-            done = True
-            break
-        for x in lines: 
-            trackInfo=x.split(",")
-            trackInfoRemovedSymbols=removeSymbols(trackInfo[1])
-            dupe = 0
-            songDestination= OUTPUT_FOLDER_NAME+playlistName+"\\"+addZeros(trackInfo[8].replace("\n",""))+trackInfoRemovedSymbols
-            songname = trackInfo[1]
-            
-            if (exists(songDestination+'.mp3')):
-                #or exists(songDestination+'.webm') or exists(songDestination+'.m4a')
-                prYellow("SKIP "+songname+" Already Downloaded")
-                with open(OUTPUT_FILE_NAME,"r") as fpr1:
-                # read an store all lines into list
-                    level = fpr1.readlines()
-                fpr1.close()
-                with open(OUTPUT_FILE_NAME,"w") as fpw1:
-                # iterate each line
-                    firstonly=0
-                    for line in level:
-                        # delete line with the song name
-                        # print(songName , line)
-                        linearr=line.split(",")
-                        # print(songname,linearr[1])
-                        if (songname != linearr[1]) or firstonly:
-                            fpw1.write(line)
-                            # break
-                        else:
-                            firstonly=1
-                            # print(songname,linearr[1])
-                        # else:
-                        #     setFileData(line.split(","),d['filename'])
-                fpw1.close()
-                dupe = 1
-            if dupe==0:
-                # print(trackInfo)
-                # print(youtubeSafeSearch(trackInfo[0]))
-                # editedTrackInfo= trackInfo[0]+" "+trackInfo[1] #New Method
-                # editedTrackInfo = youtubeSafeSearch(trackInfo[0])+"+-+"+youtubeSafeSearch(trackInfo[1])#Old Method
-                # print(editedTrackInfo+"+offical+audio")
-                code,title,length = get_videos(trackInfo[0],trackInfo[1]) #lists
+            #delets playlist if there is nothing on there
+            if len(lines) == 0 :
+                # sleep(10)
+                f.close()
+                os.remove(OUTPUT_FILE_NAME)
+                prPurple("Playlist : "+playlistName+" Done\n") 
+                done = True
+                break
+            for x in lines: 
+                trackInfo=x.split(",")
+                trackInfoRemovedSymbols=removeSymbols(trackInfo[1])
+                dupe = 0
+                songDestination= OUTPUT_FOLDER_NAME+playlistName+"\\"+addZeros(trackInfo[8].replace("\n",""))+trackInfoRemovedSymbols
+                songname = trackInfo[1]
                 
-                # currentname =re.sub(r'^.*?\+\-\+', '', x[:-1]).replace("+", " ")
-                # print(currentname)
-                #make sure that shorter list is iterated
-                found = 0
-                difference = 1000
-                # print()
-                while not found:
-                    # print(len(code),len(title),len(length))
-                    # if len(code)!= len(title) or len(code)!= len(length) or len(title)!= len(length):
-                    #     print(code)
-                    #     print(title)
-                    #     print(length)
-                    # if len(code)<=len(title) and len(code)<=len(length):
-                    #     use = len(code)
-                    # elif len(title)<=len(code) and len(title)<=len(length):
-                    #     use = len(title)
-                    # elif len(length)<=len(code) and len(length)<=len(title):
-                    #     use = len(length)
-                    maxSearchDepth = 5
-                    for i in range(len(code) if len(code) < maxSearchDepth else maxSearchDepth):
-                        # playtime_ms = getPT(length[i]) #old way
-                        playtime_ms = str(length[i]) #new way
-                        timediff = abs(int(trackInfo[9])-int(playtime_ms))
-                        # print("title: " +title[i]+" length: " +str(length[i])+" url: " +"https://www.youtube.com/watch?v="+code[i]+" title: " +"SpotifyLength: " +str(trackInfo[9].replace("\n",""))+ " YoutubeLength: " +str(playtime_ms)+ " TimeDifference: " +str(timediff)+"\n")
-                        if ("clean" not in title[i] and "8d" not in title[i].lower() and "1 hour" not in title[i].lower() and "full album" not in title[i].lower() and timediff <= difference): #not clean version
-                            found = 1
-                            if (difference!=1000):
-                                print()
-                            print("Now Downloading:",title[i],"On Youtube","https://www.youtube.com/watch?v="+code[i])
-                            #print(songDestination)
-                            ydl_opts = {
-                                'format': 'bestaudio/best',
-                                'postprocessors': [{
-                                    'key': 'FFmpegExtractAudio',
-                                    'preferredcodec': 'mp3',
-                                    'preferredquality': '320',#highest quality
-                                }],
-                                'ignoreerrors': True, #ignore errors
-                                'outtmpl': songDestination+'.%(ext)s', #save songs here .%(ext)s
-                                'logger': MyLogger(),
-                                'progress_hooks': [my_hook],
-                                'cookiefile': COOKIE_FILE, #cookies for downloading age restricted videos
-                            }
-                            # print('C:/Songs/'+currentname+'.%(ext)s')
-                            # o.write("https://www.youtube.com/watch?v="+code[i]+"\n")
-                            # print("https://www.youtube.com/watch?v="+code[i],title[i])
-                            #download
-                            
-                            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                                ydl.download(["https://www.youtube.com/watch?v="+code[i]])
-                            
-                            break
-                    if not found:
-                        prRed2("No suitable video found for "+trackInfo[1]+ " within "+str(difference)+" ms of the origninal",end="\r")
-                        difference+=1000
-        f = open(OUTPUT_FILE_NAME,"r",encoding="utf-8")
-        lines = f.readlines()
-        f.close()
-        #delets playlist if there is nothing on there
-        if len(lines) == 0 :
-            # sleep(10)
+                if (exists(songDestination+'.mp3')):
+                    #or exists(songDestination+'.webm') or exists(songDestination+'.m4a')
+                    prYellow("SKIP "+songname+" Already Downloaded")
+                    with open(OUTPUT_FILE_NAME,"r") as fpr1:
+                    # read an store all lines into list
+                        level = fpr1.readlines()
+                    fpr1.close()
+                    with open(OUTPUT_FILE_NAME,"w") as fpw1:
+                    # iterate each line
+                        firstonly=0
+                        for line in level:
+                            # delete line with the song name
+                            # print(songName , line)
+                            linearr=line.split(",")
+                            # print(songname,linearr[1])
+                            if (songname != linearr[1]) or firstonly:
+                                fpw1.write(line)
+                                # break
+                            else:
+                                firstonly=1
+                                # print(songname,linearr[1])
+                            # else:
+                            #     setFileData(line.split(","),d['filename'])
+                    fpw1.close()
+                    dupe = 1
+                if dupe==0:
+                    reallydone = False
+                    # print(trackInfo)
+                    # print(youtubeSafeSearch(trackInfo[0]))
+                    # editedTrackInfo= trackInfo[0]+" "+trackInfo[1] #New Method
+                    # editedTrackInfo = youtubeSafeSearch(trackInfo[0])+"+-+"+youtubeSafeSearch(trackInfo[1])#Old Method
+                    # print(editedTrackInfo+"+offical+audio")
+                    code,title,length = get_videos(trackInfo[0],trackInfo[1]) #lists
+                    
+                    # currentname =re.sub(r'^.*?\+\-\+', '', x[:-1]).replace("+", " ")
+                    # print(currentname)
+                    #make sure that shorter list is iterated
+                    found = 0
+                    difference = 1000
+                    # print()
+                    while not found:
+                        # print(len(code),len(title),len(length))
+                        # if len(code)!= len(title) or len(code)!= len(length) or len(title)!= len(length):
+                        #     print(code)
+                        #     print(title)
+                        #     print(length)
+                        # if len(code)<=len(title) and len(code)<=len(length):
+                        #     use = len(code)
+                        # elif len(title)<=len(code) and len(title)<=len(length):
+                        #     use = len(title)
+                        # elif len(length)<=len(code) and len(length)<=len(title):
+                        #     use = len(length)
+                        maxSearchDepth = 5
+                        for i in range(len(code) if len(code) < maxSearchDepth else maxSearchDepth):
+                            # playtime_ms = getPT(length[i]) #old way
+                            playtime_ms = str(length[i]) #new way
+                            timediff = abs(int(trackInfo[9])-int(playtime_ms))
+                            # print("title: " +title[i]+" length: " +str(length[i])+" url: " +"https://www.youtube.com/watch?v="+code[i]+" title: " +"SpotifyLength: " +str(trackInfo[9].replace("\n",""))+ " YoutubeLength: " +str(playtime_ms)+ " TimeDifference: " +str(timediff)+"\n")
+                            if ("clean" not in title[i] and "8d" not in title[i].lower() and "1 hour" not in title[i].lower() and "full album" not in title[i].lower() and timediff <= difference): #not clean version
+                                found = 1
+                                if (difference!=1000):
+                                    print()
+                                print("Now Downloading:",title[i],"On Youtube","https://www.youtube.com/watch?v="+code[i])
+                                #print(songDestination)
+                                ydl_opts = {
+                                    'format': 'bestaudio/best',
+                                    'postprocessors': [{
+                                        'key': 'FFmpegExtractAudio',
+                                        'preferredcodec': 'mp3',
+                                        'preferredquality': '320',#highest quality
+                                    }],
+                                    'ignoreerrors': True, #ignore errors
+                                    'outtmpl': songDestination+'.%(ext)s', #save songs here .%(ext)s
+                                    'logger': MyLogger(),
+                                    'progress_hooks': [my_hook],
+                                    'cookiefile': COOKIE_FILE, #cookies for downloading age restricted videos
+                                }
+                                # print('C:/Songs/'+currentname+'.%(ext)s')
+                                # o.write("https://www.youtube.com/watch?v="+code[i]+"\n")
+                                # print("https://www.youtube.com/watch?v="+code[i],title[i])
+                                #download
+                                
+                                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                                    ydl.download(["https://www.youtube.com/watch?v="+code[i]])
+                                
+                                break
+                        if not found:
+                            prRed2("No suitable video found for "+trackInfo[1]+ " within "+str(difference)+" ms of the origninal",end="\r")
+                            difference+=1000
+            
+            f = open(OUTPUT_FILE_NAME,"r",encoding="utf-8")
+            lines = f.readlines()
             f.close()
-            os.remove(OUTPUT_FILE_NAME)
-            prPurple("Playlist : "+playlistName+" Done\n") 
-            done = True
-            break
-        f.close()
-        prYellow("RESTARTING")
+            #delets playlist if there is nothing on there
+            if len(lines) == 0 :
+                # sleep(10)
+                f.close()
+                os.remove(OUTPUT_FILE_NAME)
+                prPurple("Playlist : "+playlistName+" Done\n") 
+                done = True
+                break
+            f.close()
+            prYellow("RESTARTING")
 
 # load_dotenv()
 # duplicates=[]
