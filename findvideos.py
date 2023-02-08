@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 from distutils.log import debug
 import json
+import csv
 from pytube import YouTube 
 import secrets
 import string
@@ -73,9 +74,7 @@ def printBar(name,percentage,eta,speed):
     '''prints a bar to see how the download is coming along'''
     bartotalstring = f'\r{name} ||{percentage} ETA: {eta} Speed: {speed} '
     fill = '█'
-    load_dotenv()
-    BAR_LENGTH = int(os.getenv("BAR_LENGTH"))
-    length = BAR_LENGTH - len(bartotalstring)
+    length = BAR_LENGTH - len(bartotalstring) if BAR_LENGTH - len(bartotalstring) > 10 else 10
     printEnd = ""
     filledLength = int(math.floor((float(percentage[:-1])/100)*length))
     bar = fill * filledLength + '-' * (length - filledLength)
@@ -182,11 +181,25 @@ def get_videos(artist,song):
     totalQ = querySTANDARD+intitleSTANDARD
     while (video_ids == [] or video_titles == [] or video_lengths == []):
         
+
         s = Search(totalQ)
+        if (exists(DEBUG_FILE_NAME)): os.remove(DEBUG_FILE_NAME)
         for i in s.results:
+            if not exists(DEBUG_FILE_NAME): 
+                with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
+                    writer = csv.writer(file, lineterminator = '\n')
+                    writer.writerow(["VideoID","title","Length"])
+                file.close()
+            with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
+                writer = csv.writer(file, lineterminator = '\n')
+                writer.writerow([i.video_id,i.title,i.length*1000])
+                # prGreen("data saved to "+DEBUG_FILE_NAME)
+                file.close()
+
             video_ids.append(i.video_id)
             video_titles.append(i.title)
             video_lengths.append(i.length*1000)
+            
 
         if (video_ids == [] or video_titles == [] or video_lengths == []):
             totalQ = querySTANDARD
@@ -314,9 +327,6 @@ def my_hook(d):
         '''
     #print(d)
     #song done
-    load_dotenv()
-    OUTPUT_FOLDER_NAME = os.getenv("OUTPUT_FOLDER_NAME", "")
-    OUTPUT_FILE_NAME = os.getenv("OUTPUT_FILE_NAME", "")
     # print(d['filename'])
     songName = ((removeSymbolsReverse(d['filename'].replace(OUTPUT_FOLDER_NAME,"").replace(".mp3", "").replace(".webm", "").replace(".m4a", ""))).split("\\",1)[1])[7:]#removes the prefix and suffix as well as swapping out the changed symbols
     #.replace(".webm", "").replace(".m4a", "")
@@ -352,13 +362,6 @@ def my_hook(d):
 
 
 def checkPlaylist(playlist):
-    #load credentials from .env file
-    load_dotenv()
-
-    CLIENT_ID = os.getenv("CLIENT_ID", "")
-    CLIENT_SECRET = os.getenv("CLIENT_SECRET", "")
-    OUTPUT_FILE_NAME = os.getenv("OUTPUT_FILE_NAME", "")
-    USERNAME = os.getenv("USERNAME", "")
     if (exists(OUTPUT_FILE_NAME)): os.remove(OUTPUT_FILE_NAME)
     # authenticate
     client_credentials_manager = SpotifyClientCredentials(
@@ -435,9 +438,14 @@ def getPT(str):
 
 #important files
 load_dotenv()
+DEBUG_FILE_NAME = os.getenv("DEBUG_FILE_NAME", "")
+BAR_LENGTH = int(os.getenv("BAR_LENGTH"))
+OUTPUT_FOLDER_NAME = os.getenv("OUTPUT_FOLDER_NAME","")
 OUTPUT_FILE_NAME = os.getenv("OUTPUT_FILE_NAME", "")
+CLIENT_ID = os.getenv("CLIENT_ID", "")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET", "")
+USERNAME = os.getenv("USERNAME", "")
 COOKIE_FILE = os.getenv("COOKIE_FILE", "")
-OUTPUT_FOLDER_NAME = os.getenv("OUTPUT_FOLDER_NAME", "")
 PLAYLIST_FILE_NAME = os.getenv("PLAYLIST_FILE_NAME", "")
 
 file = open(PLAYLIST_FILE_NAME,'r')
@@ -548,6 +556,7 @@ for currentPlaylist in file.readlines():
                             
                             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                                 ydl.download(["https://www.youtube.com/watch?v="+code[i]])
+                            
                             break
                     if not found:
                         prRed2("No suitable video found for "+trackInfo[1]+ " within "+str(difference)+" ms of the origninal",end="\r")
