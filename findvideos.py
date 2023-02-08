@@ -73,7 +73,9 @@ def printBar(name,percentage,eta,speed):
     '''prints a bar to see how the download is coming along'''
     bartotalstring = f'\r{name} ||{percentage} ETA: {eta} Speed: {speed} '
     fill = '█'
-    length = 180 - len(bartotalstring)
+    load_dotenv()
+    BAR_LENGTH = int(os.getenv("BAR_LENGTH"))
+    length = BAR_LENGTH - len(bartotalstring)
     printEnd = ""
     filledLength = int(math.floor((float(percentage[:-1])/100)*length))
     bar = fill * filledLength + '-' * (length - filledLength)
