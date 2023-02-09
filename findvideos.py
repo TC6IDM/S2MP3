@@ -188,21 +188,26 @@ def get_videos(artist,song):
         if (exists(DEBUG_FILE_NAME)): 
             with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
                 writer = csv.writer(file, lineterminator = '\n')
-                writer.writerow([" "," "," "," "])
-                writer.writerow([" "," "," "," "])
-                writer.writerow([" "," "," "," "])
-                writer.writerow([" "," "," "," "])
-                writer.writerow([" "," "," "," "])
+                writer.writerow(["","","","","",])
+                writer.writerow(["","","","","",])
+                writer.writerow(["","","","","",])
+                writer.writerow(["","","","","",])
+                writer.writerow(["","","","","",])
                 file.close()
-                
+        else:
+            with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
+                writer = csv.writer(file, lineterminator = '\n')
+                writer.writerow(["VideoID","title","Length","Search","ZERO"])
+                file.close()
+            
         with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
             writer = csv.writer(file, lineterminator = '\n')
-            writer.writerow(["VideoID","title","Length",totalQ])
+            writer.writerow(["","","",totalQ,""])
             file.close()
         for i in s.results:                
             with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
                 writer = csv.writer(file, lineterminator = '\n')
-                writer.writerow([i.video_id,i.title,i.length*1000])
+                writer.writerow(["https://www.youtube.com/watch?v="+i.video_id,i.title,i.length*1000,"",""])
                 # prGreen("data saved to "+DEBUG_FILE_NAME)
                 file.close()
 
