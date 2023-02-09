@@ -461,7 +461,7 @@ def checkmark(link,before,after):
             # print(row)
             if i>=before and i<=after:
                 if row[0] == link:
-                    row[3] = "✅"
+                    row[3] = row[3]+"✅"
             lines.append(row)
             # print(i)
             # print(row)
@@ -580,6 +580,7 @@ while not reallydone:
                             # print("title: " +title[i]+" length: " +str(length[i])+" url: " +"https://www.youtube.com/watch?v="+code[i]+" title: " +"SpotifyLength: " +str(trackInfo[9].replace("\n",""))+ " YoutubeLength: " +str(playtime_ms)+ " TimeDifference: " +str(timediff)+"\n")
                             if ("clean" not in title[i] and "8d" not in title[i].lower() and "1 hour" not in title[i].lower() and "full album" not in title[i].lower() and timediff <= difference): #not clean version
                                 link = "https://www.youtube.com/watch?v="+code[i]
+                                checkmark(link,lenbefore,lenafter)
                                 found = 1
                                 if (difference!=1000):
                                     print()
