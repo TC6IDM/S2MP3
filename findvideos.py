@@ -606,7 +606,7 @@ while not reallydone:
                                 
                                 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                                     ydl.download([link])
-                                checkmark(link,lenbefore,lenafter)
+                                if (exists(songDestination+'.mp3')):checkmark(link,lenbefore,lenafter)
                                 break
                         if not found:
                             prRed2("No suitable video found for "+trackInfo[1]+ " within "+str(difference)+" ms of the origninal",end="\r")
