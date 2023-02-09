@@ -38,6 +38,7 @@ import shutil # save img locally
 import requests
 from mutagen.id3 import ID3, APIC, error, TXXX
 from pytube import Search
+import pandas as pd
 
 def prRed(skk): print("\033[91m{}\033[00m" .format(skk))
 def prRed2(skk,end): print("\033[91m{}\033[00m" .format(skk),end=end)
@@ -451,6 +452,25 @@ def getPT(str):
         playtime_ms = playtime_ms + int(seconds[0]) * 1000
     return playtime_ms
 
+def checkmark(link,before,after):
+    lines = list()
+    with open(DEBUG_FILE_NAME, 'r', encoding="utf-8") as readFile:
+        reader = csv.reader(readFile)
+        i=1
+        for row in reader:
+            # print(row)
+            if i>=before and i<=after:
+                if row[0] == link:
+                    row[3] = "✅"
+            lines.append(row)
+            # print(i)
+            # print(row)
+            i+=1
+
+    with open(DEBUG_FILE_NAME, 'w', encoding="utf-8", newline='') as writeFile:
+        writer = csv.writer(writeFile)
+        writer.writerows(lines)
+        
 #important files
 load_dotenv()
 DEBUG_FILE_NAME = os.getenv("DEBUG_FILE_NAME", "")
@@ -527,8 +547,13 @@ while not reallydone:
                     # editedTrackInfo= trackInfo[0]+" "+trackInfo[1] #New Method
                     # editedTrackInfo = youtubeSafeSearch(trackInfo[0])+"+-+"+youtubeSafeSearch(trackInfo[1])#Old Method
                     # print(editedTrackInfo+"+offical+audio")
+                    lenbefore = 1 if (not exists(DEBUG_FILE_NAME)) else len(pd.read_csv(DEBUG_FILE_NAME)) + 2 
+                        
                     code,title,length = get_videos(trackInfo[0],trackInfo[1]) #lists
                     
+                    lenafter = len(pd.read_csv(DEBUG_FILE_NAME)) + 1
+                        
+                    # print(lenbefore,lenafter)
                     # currentname =re.sub(r'^.*?\+\-\+', '', x[:-1]).replace("+", " ")
                     # print(currentname)
                     #make sure that shorter list is iterated
@@ -554,10 +579,11 @@ while not reallydone:
                             timediff = abs(int(trackInfo[9])-int(playtime_ms))
                             # print("title: " +title[i]+" length: " +str(length[i])+" url: " +"https://www.youtube.com/watch?v="+code[i]+" title: " +"SpotifyLength: " +str(trackInfo[9].replace("\n",""))+ " YoutubeLength: " +str(playtime_ms)+ " TimeDifference: " +str(timediff)+"\n")
                             if ("clean" not in title[i] and "8d" not in title[i].lower() and "1 hour" not in title[i].lower() and "full album" not in title[i].lower() and timediff <= difference): #not clean version
+                                link = "https://www.youtube.com/watch?v="+code[i]
                                 found = 1
                                 if (difference!=1000):
                                     print()
-                                print("Now Downloading:",title[i],"On Youtube","https://www.youtube.com/watch?v="+code[i])
+                                print("Now Downloading:",title[i],"On Youtube",link)
                                 #print(songDestination)
                                 ydl_opts = {
                                     'format': 'bestaudio/best',
@@ -578,8 +604,8 @@ while not reallydone:
                                 #download
                                 
                                 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                                    ydl.download(["https://www.youtube.com/watch?v="+code[i]])
-                                
+                                    ydl.download([link])
+                                checkmark(link,lenbefore,lenafter)
                                 break
                         if not found:
                             prRed2("No suitable video found for "+trackInfo[1]+ " within "+str(difference)+" ms of the origninal",end="\r")
