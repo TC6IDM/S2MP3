@@ -188,16 +188,16 @@ def get_videos(artist,song):
         if (exists(DEBUG_FILE_NAME)): 
             with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
                 writer = csv.writer(file, lineterminator = '\n')
-                writer.writerow([" "," "," "])
-                writer.writerow([" "," "," "])
-                writer.writerow([" "," "," "])
-                writer.writerow([" "," "," "])
-                writer.writerow([" "," "," "])
+                writer.writerow([" "," "," "," "])
+                writer.writerow([" "," "," "," "])
+                writer.writerow([" "," "," "," "])
+                writer.writerow([" "," "," "," "])
+                writer.writerow([" "," "," "," "])
                 file.close()
                 
         with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
             writer = csv.writer(file, lineterminator = '\n')
-            writer.writerow(["VideoID","title","Length"])
+            writer.writerow(["VideoID","title","Length",totalQ])
             file.close()
         for i in s.results:                
             with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
@@ -460,7 +460,7 @@ PLAYLIST_FILE_NAME = os.getenv("PLAYLIST_FILE_NAME", "")
 
 letters = string.digits
 
-if (exists(DEBUG_FILE_NAME)): os.rename(DEBUG_FILE_NAME, 'DEBUG - ' + ' '.join(random.choice(letters) for i in range(10)) + ' .csv')
+# if (exists(DEBUG_FILE_NAME)): os.rename(DEBUG_FILE_NAME, 'DEBUG - ' + ' '.join(random.choice(letters) for i in range(10)) + ' .csv')
 
 reallydone = False
 while not reallydone:
