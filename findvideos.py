@@ -493,7 +493,7 @@ while not reallydone:
     file = open(PLAYLIST_FILE_NAME,'r')
     for currentPlaylist in file.readlines():
         #removes \n from the end of the playlist
-        done=False
+        done=False if currentPlaylist.startswith("https://open.spotify.com/playlist/") else True
         # if (exists(DEBUG_FILE_NAME)): os.remove(DEBUG_FILE_NAME)
         while not done: #while there is still stuff in the playlist, loop through playlist
             playlistName = checkPlaylist(currentPlaylist)
