@@ -409,7 +409,8 @@ def checkPlaylist(playlist):
                 [deleteBadCharacters(artist["name"]) for artist in track["track"]["album"]["artists"]]
             )
             #if track["track"]["album"]["images"]: 
-            albumPicture = track["track"]["album"]["images"][0]['url']
+            # print(len(track["track"]["album"]["images"]))
+            albumPicture = None if len(track["track"]["album"]["images"])==0 else track["track"]["album"]["images"][0]['url']
             # else : 
             #     albumPicture = "NULL"
             albumName = deleteBadCharacters(track["track"]["album"]["name"])
