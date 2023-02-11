@@ -182,7 +182,7 @@ def get_videos(artist,song):
     video_titles = []
     video_lengths = []
     totalQ = querySTANDARD+intitleSTANDARD
-    while (video_ids == [] or video_titles == [] or video_lengths == []):
+    while (len(video_ids)<MAX_SEARCH_DEPTH):
         
 
         s = Search(totalQ)
@@ -217,9 +217,9 @@ def get_videos(artist,song):
             video_lengths.append(i.length*1000)
             
 
-        if (video_ids == [] or video_titles == [] or video_lengths == []):
+        if (len(video_ids)<MAX_SEARCH_DEPTH):
             totalQ = querySTANDARD
-            prRed("QUERY: "+querySTANDARD+intitleSTANDARD+"\nNo results found, retrying without intitle")
+            prRed("QUERY: "+querySTANDARD+intitleSTANDARD+"\nNot enough results found, retrying without intitle")
     return video_ids,video_titles,video_lengths
 
     #OLD WAY
@@ -296,13 +296,12 @@ def setFileData(data,file):
     audio.save()
     prGreen("Metadata Saved")
 
-    load_dotenv()
-    OUTPUT_FOLDER_NAME = os.getenv("OUTPUT_FOLDER_NAME","")
     url = data[5]
     #.replace("\n","")
     image_file = OUTPUT_FOLDER_NAME+'tempImage.jfif'
     print("Downloading Album Image")
-    res = requests.get(url, stream = True)
+    if url == "NULL": prRed('Album image Couldn\'t be retrieved\n'); return
+    res = requests.get(url, stream = True) 
     if res.status_code == 200:
         with open(image_file,'wb') as f:
             shutil.copyfileobj(res.raw, f)
@@ -322,7 +321,7 @@ def setFileData(data,file):
     )
     audio.save()
     os.remove(image_file)
-    prCyan("File Done!\n")
+    return
     
 
     
@@ -370,6 +369,7 @@ def my_hook(d):
                     firstonly=1
                     # print(songName,linearr[1])
                     setFileData(linearr,d['filename'])
+                    prCyan("File Done!\n")
         fpw.close()
         # time.sleep(2)
 
@@ -501,6 +501,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET", "")
 USERNAME = os.getenv("USERNAME", "")
 COOKIE_FILE = os.getenv("COOKIE_FILE", "")
 PLAYLIST_FILE_NAME = os.getenv("PLAYLIST_FILE_NAME", "")
+MAX_SEARCH_DEPTH = 5
 
 letters = string.digits
 
@@ -591,8 +592,7 @@ while not reallydone:
                         #     use = len(title)
                         # elif len(length)<=len(code) and len(length)<=len(title):
                         #     use = len(length)
-                        maxSearchDepth = 5
-                        for i in range(len(code) if len(code) < maxSearchDepth else maxSearchDepth):
+                        for i in range(len(code) if len(code) < MAX_SEARCH_DEPTH else MAX_SEARCH_DEPTH):
                             # playtime_ms = getPT(length[i]) #old way
                             playtime_ms = str(length[i]) #new way
                             timediff = abs(int(trackInfo[9])-int(playtime_ms))
