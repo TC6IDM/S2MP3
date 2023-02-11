@@ -408,22 +408,40 @@ def checkPlaylist(playlist):
             albumArtists = "/".join(
                 [deleteBadCharacters(artist["name"]) for artist in track["track"]["album"]["artists"]]
             )
+            albumArtists = "NULL" if albumArtists is None or albumArtists == "" else albumArtists
+            
             #if track["track"]["album"]["images"]: 
             # print(len(track["track"]["album"]["images"]))
-            albumPicture = None if len(track["track"]["album"]["images"])==0 else track["track"]["album"]["images"][0]['url']
+            albumPicture = "NULL" if len(track["track"]["album"]["images"])==0 else track["track"]["album"]["images"][0]['url']
             # else : 
             #     albumPicture = "NULL"
+            
             albumName = deleteBadCharacters(track["track"]["album"]["name"])
+            albumName = "NULL" if albumName is None or albumName == "" else albumName
+            
             releaseDate = track["track"]["album"]['release_date']
+            releaseDate = "NULL" if releaseDate is None or releaseDate == "" else releaseDate
+            
             trackArtists = "/".join(
                 [deleteBadCharacters(artist["name"]) for artist in track["track"]["artists"]]
             )
+            trackArtists = "NULL" if trackArtists is None or trackArtists == "" else trackArtists
+            
             trackName = deleteBadCharacters(track["track"]["name"])# annoying characters
+            trackName = "NULL" if trackName is None or trackName == "" else trackName
+            
             discnumber = track["track"]["disc_number"]
+            discnumber = 0 if discnumber is None or discnumber == "" else discnumber
+            
             tracknumber = track["track"]["track_number"]
+            tracknumber = 0 if tracknumber is None or tracknumber == "" else tracknumber
+            
             duration_ms = track["track"]["duration_ms"]
+            duration_ms = 0 if duration_ms is None or duration_ms == "" else duration_ms
+            
             # write to csv
             writer.writerow([trackArtists, trackName,albumArtists,albumName,releaseDate,albumPicture,discnumber,tracknumber,index,duration_ms])
+            #Dan Croll,From Nowhere (Baardsen Remix),albumArtists,The Music of Grand Theft Auto V Vol. 3: The Soundtrack,releaseDate,albumPicture,0,0,13,267000
         pass
     file.close()
     # print(playlistName)
@@ -585,7 +603,7 @@ while not reallydone:
                                 found = 1
                                 if (difference!=1000):
                                     print()
-                                print("Now Downloading:",title[i],"On Youtube",link)
+                                print("Now Downloading:",title[i],"| On Youtube",link)
                                 #print(songDestination)
                                 ydl_opts = {
                                     'format': 'bestaudio/best',
