@@ -4,8 +4,7 @@
         "album_type": "album", 
         "artists": 
             [{
-                "external_urls": 
-                {"spotify": "https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x"}, 
+                "external_urls": {"spotify": "https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x"}, 
                 "href": "https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x", 
                 "id": "5K4W6rqBFWDnAN6FQUkS6x", 
                 "name": "Kanye West", 
