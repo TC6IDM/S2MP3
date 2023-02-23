@@ -674,7 +674,8 @@ while True:
             totalplaylists2.append(tracks)
         
         if totalplaylists2 != totalplaylists:
-            prPurple("PLAYLISTS CHANGED")
+            prPurple("PLAYLISTS CHANGED                                                                ")
+            time.sleep(5)
             break
         
 
