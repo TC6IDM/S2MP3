@@ -126,7 +126,7 @@ def youtubeSafeSearch(text):
     if '|' in text : text = re.sub('\|', '%7C', text)
     # print(text,"end")
     return text
-Search
+
 def deleteBadCharacters(text):
     text = text.replace(",","")
     text = text.replace("’","'")
