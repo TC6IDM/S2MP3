@@ -14,6 +14,7 @@ import string
 import time
 from tkinter import E
 import urllib.request
+import unicodedata
 import os
 from dotenv import load_dotenv
 import requests
@@ -130,7 +131,7 @@ def youtubeSafeSearch(text):
 def deleteBadCharacters(text):
     text = text.replace(",","")
     text = text.replace("’","'")
-    return text.encode('ascii', 'ignore').decode('ascii')
+    return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
 
 def get_videos(artist,song):
     '''Gets and returns the video ID and Title (as seen on youtube)'''
@@ -492,7 +493,22 @@ def checkmark(link,before,after):
     with open(DEBUG_FILE_NAME, 'w', encoding="utf-8", newline='') as writeFile:
         writer = csv.writer(writeFile)
         writer.writerows(lines)
-        
+
+def gatekeep(yttitle,artist,song):
+    blacklist = ["clean",
+                 "instrumental",
+                 "8d",
+                 "1 hour",
+                 "full album",
+                 "alternative",
+                 "sped up",
+                 "acapella",
+                 "vocals only",
+                 "radio edit"
+                 "bass boosted"]
+    for i in blacklist:
+        if (not (i not in yttitle.lower() or (i in artist.lower() or i in song.lower()))): return False #if word is in the title, it must be in the artist or song name
+    return True
 #important files
 load_dotenv()
 DEBUG_FILE_NAME = os.getenv("DEBUG_FILE_NAME", "")
@@ -606,7 +622,9 @@ while True:
                                 playtime_ms = str(length[i]) #new way
                                 timediff = abs(int(trackInfo[9])-int(playtime_ms))
                                 # print("title: " +title[i]+" length: " +str(length[i])+" url: " +"https://www.youtube.com/watch?v="+code[i]+" title: " +"SpotifyLength: " +str(trackInfo[9].replace("\n",""))+ " YoutubeLength: " +str(playtime_ms)+ " TimeDifference: " +str(timediff)+"\n")
-                                if ("clean" not in title[i].lower() and "instrumental" not in title[i].lower() and "8d" not in title[i].lower() and "1 hour" not in title[i].lower() and "full album" not in title[i].lower() and timediff <= difference): #not clean version
+                                
+                                
+                                if (gatekeep(title[i],trackInfo[0],trackInfo[1]) and timediff <= difference): #see gatekeep function
                                     possibleSongList.append([views[i],i])
                                     possibleSongList = sorted(possibleSongList,reverse=True)
                                     found = 1
