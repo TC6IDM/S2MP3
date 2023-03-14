@@ -126,7 +126,7 @@ def youtubeSafeSearch(text):
     if '|' in text : text = re.sub('\|', '%7C', text)
     # print(text,"end")
     return text
-
+Search
 def deleteBadCharacters(text):
     text = text.replace(",","")
     text = text.replace("’","'")
@@ -182,6 +182,7 @@ def get_videos(artist,song):
     video_ids = []
     video_titles = []
     video_lengths = []
+    video_views = []
     totalQ = querySTANDARD+intitleSTANDARD
     while (len(video_ids)<MAX_SEARCH_DEPTH):
         
@@ -190,38 +191,38 @@ def get_videos(artist,song):
         if (exists(DEBUG_FILE_NAME)): 
             with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
                 writer = csv.writer(file, lineterminator = '\n')
-                writer.writerow(["","","","","",])
-                writer.writerow(["","","","","",])
-                writer.writerow(["","","","","",])
-                writer.writerow(["","","","","",])
-                writer.writerow(["","","","","",])
+                writer.writerow(["","","","","","",])
+                writer.writerow(["","","","","","",])
+                writer.writerow(["","","","","","",])
+                writer.writerow(["","","","","","",])
+                writer.writerow(["","","","","","",])
                 file.close()
         else:
             with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
                 writer = csv.writer(file, lineterminator = '\n')
-                writer.writerow(["VideoID","title","Length","Search","ZERO"])
+                writer.writerow(["VideoID","title","Length","Views","Search","ZERO"])
                 file.close()
             
         with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
             writer = csv.writer(file, lineterminator = '\n')
-            writer.writerow(["","","",totalQ,""])
+            writer.writerow(["","","","",totalQ,""])
             file.close()
         for i in s.results:                
             with open(DEBUG_FILE_NAME, "a", encoding="utf-8") as file:
                 writer = csv.writer(file, lineterminator = '\n')
-                writer.writerow(["https://www.youtube.com/watch?v="+i.video_id,i.title,i.length*1000,"",""])
+                writer.writerow(["https://www.youtube.com/watch?v="+i.video_id,i.title,i.length*1000,i.views,"",""])
                 # prGreen("data saved to "+DEBUG_FILE_NAME)
                 file.close()
-
             video_ids.append(i.video_id)
             video_titles.append(i.title)
             video_lengths.append(i.length*1000)
+            video_views.append(i.views)
             
 
         if (len(video_ids)<MAX_SEARCH_DEPTH):
             totalQ = querySTANDARD
             prRed("QUERY: "+querySTANDARD+intitleSTANDARD+"\nNot enough results found, retrying without intitle")
-    return video_ids,video_titles,video_lengths
+    return video_ids,video_titles,video_lengths,video_views
 
     #OLD WAY
     # html = urllib.request.urlopen("https://www.youtube.com/results?search_query="+query+intitle).read().decode()
@@ -482,7 +483,7 @@ def checkmark(link,before,after):
             # print(row)
             if i>=before and i<=after:
                 if row[0] == link:
-                    row[3] = row[3]+"✅"
+                    row[4] = row[4]+"✅"
             lines.append(row)
             # print(i)
             # print(row)
@@ -505,7 +506,7 @@ COOKIE_FILE = os.getenv("COOKIE_FILE", "")
 PLAYLIST_FILE_NAME = os.getenv("PLAYLIST_FILE_NAME", "")
 MAX_SEARCH_DEPTH = 5
 
-letters = string.digits
+# letters = string.digits
 
 # if (exists(DEBUG_FILE_NAME)): os.rename(DEBUG_FILE_NAME, 'DEBUG - ' + ' '.join(random.choice(letters) for i in range(10)) + ' .csv')
 
@@ -575,7 +576,7 @@ while True:
                         # print(editedTrackInfo+"+offical+audio")
                         lenbefore = 1 if (not exists(DEBUG_FILE_NAME)) else len(pd.read_csv(DEBUG_FILE_NAME)) + 2 
                             
-                        code,title,length = get_videos(trackInfo[0],trackInfo[1]) #lists
+                        code,title,length,views = get_videos(trackInfo[0],trackInfo[1]) #lists
                         
                         lenafter = len(pd.read_csv(DEBUG_FILE_NAME)) + 1
                             
@@ -584,7 +585,8 @@ while True:
                         # print(currentname)
                         #make sure that shorter list is iterated
                         found = 0
-                        difference = 1000
+                        allowedDiff = 1000
+                        difference = allowedDiff
                         # print()
                         while not found:
                             # print(len(code),len(title),len(length))
@@ -598,42 +600,45 @@ while True:
                             #     use = len(title)
                             # elif len(length)<=len(code) and len(length)<=len(title):
                             #     use = len(length)
+                            possibleSongList =[]
                             for i in range(len(code) if len(code) < MAX_SEARCH_DEPTH else MAX_SEARCH_DEPTH):
                                 # playtime_ms = getPT(length[i]) #old way
                                 playtime_ms = str(length[i]) #new way
                                 timediff = abs(int(trackInfo[9])-int(playtime_ms))
                                 # print("title: " +title[i]+" length: " +str(length[i])+" url: " +"https://www.youtube.com/watch?v="+code[i]+" title: " +"SpotifyLength: " +str(trackInfo[9].replace("\n",""))+ " YoutubeLength: " +str(playtime_ms)+ " TimeDifference: " +str(timediff)+"\n")
-                                if ("clean".lower() not in title[i] and "instrumental".lower() not in title[i] and "8d" not in title[i].lower() and "1 hour" not in title[i].lower() and "full album" not in title[i].lower() and timediff <= difference): #not clean version
-                                    link = "https://www.youtube.com/watch?v="+code[i]
-                                    checkmark(link,lenbefore,lenafter)
+                                if ("clean" not in title[i].lower() and "instrumental" not in title[i].lower() and "8d" not in title[i].lower() and "1 hour" not in title[i].lower() and "full album" not in title[i].lower() and timediff <= difference): #not clean version
+                                    possibleSongList.append([views[i],i])
+                                    possibleSongList = sorted(possibleSongList,reverse=True)
                                     found = 1
-                                    if (difference!=1000):
-                                        print()
-                                    print("Now Downloading:",title[i],"| On Youtube",link)
-                                    #print(songDestination)
-                                    ydl_opts = {
-                                        'format': 'bestaudio/best',
-                                        'postprocessors': [{
-                                            'key': 'FFmpegExtractAudio',
-                                            'preferredcodec': 'mp3',
-                                            'preferredquality': '320',#highest quality
-                                        }],
-                                        'ignoreerrors': True, #ignore errors
-                                        'outtmpl': songDestination+'.%(ext)s', #save songs here .%(ext)s
-                                        'logger': MyLogger(),
-                                        'progress_hooks': [my_hook],
-                                        'cookiefile': COOKIE_FILE, #cookies for downloading age restricted videos
-                                    }
-                                    # print('C:/Songs/'+currentname+'.%(ext)s')
-                                    # o.write("https://www.youtube.com/watch?v="+code[i]+"\n")
-                                    # print("https://www.youtube.com/watch?v="+code[i],title[i])
-                                    #download
+                            if found:
+                                link = "https://www.youtube.com/watch?v="+code[possibleSongList[0][1]]
+                                checkmark(link,lenbefore,lenafter)
+                                if (difference!=allowedDiff):
+                                    print()
+                                print("Now Downloading:",title[possibleSongList[0][1]],"| On Youtube",link)
+                                #print(songDestination)
+                                ydl_opts = {
+                                    'format': 'bestaudio/best',
+                                    'postprocessors': [{
+                                        'key': 'FFmpegExtractAudio',
+                                        'preferredcodec': 'mp3',
+                                        'preferredquality': '320',#highest quality
+                                    }],
+                                    'ignoreerrors': True, #ignore errors
+                                    'outtmpl': songDestination+'.%(ext)s', #save songs here .%(ext)s
+                                    'logger': MyLogger(),
+                                    'progress_hooks': [my_hook],
+                                    'cookiefile': COOKIE_FILE, #cookies for downloading age restricted videos
+                                }
+                                # print('C:/Songs/'+currentname+'.%(ext)s')
+                                # o.write("https://www.youtube.com/watch?v="+code[i]+"\n")
+                                # print("https://www.youtube.com/watch?v="+code[i],title[i])
+                                #download
                                     
-                                    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                                        ydl.download([link])
-                                    if (exists(songDestination+'.mp3')):checkmark(link,lenbefore,lenafter)
-                                    break
-                            if not found:
+                                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                                    ydl.download([link])
+                                if (exists(songDestination+'.mp3')):checkmark(link,lenbefore,lenafter)
+                            else:
                                 prRed2("No suitable video found for "+trackInfo[1]+ " within "+str(difference)+" ms of the origninal",end="\r")
                                 difference+=1000
                 
@@ -674,7 +679,7 @@ while True:
             totalplaylists2.append(tracks)
         
         if totalplaylists2 != totalplaylists:
-            prPurple("PLAYLISTS CHANGED                                                                ")
+            prPurple("PLAYLISTS CHANGED, RESTARTING                                                                ")
             time.sleep(5)
             break
         
