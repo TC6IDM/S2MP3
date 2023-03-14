@@ -504,7 +504,10 @@ def gatekeep(yttitle,artist,song):
                  "sped up",
                  "acapella",
                  "vocals only",
-                 "radio edit"
+                 "radio edit",
+                 "extended",
+                 "slowed",
+                 "reverb",
                  "bass boosted"]
     for i in blacklist:
         if (not (i not in yttitle.lower() or (i in artist.lower() or i in song.lower()))): return False #if word is in the title, it must be in the artist or song name
