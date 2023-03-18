@@ -42,7 +42,26 @@ def prPurple(skk): print("\033[95m{}\033[00m" .format(skk))
 # print(len(video_ids),len(video_titles),len(video_lengths))
 # for i in range(len(video_ids)):
 #     print("https://www.youtube.com/watch?v="+video_ids[i],video_titles[i],video_lengths[i])
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 
+birdy_uri = 'spotify:artist:2WX2uTcsvV5OnS0inACecP'
+client_credentials_manager = SpotifyClientCredentials(
+        client_id="1aade97b28854f0eb926ce48a12c1b7e", client_secret="baf7efc3cff3496ba9a4e7f108c45d98"
+    )
+    
+    # create spotify session object
+spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+
+results = spotify.artist_albums(birdy_uri, album_type='album')
+albums = results['items']
+while results['next']:
+    results = spotify.next(results)
+    albums.extend(results['items'])
+
+for album in albums:
+    print(album['name'])
+    
 def gatekeep(blacklist,artist,song,yttitle):
     for i in blacklist:
         if (not (i not in yttitle.lower() or (i in artist.lower() or i in song.lower()))): return False #if word is in the title, it must be in the artist or song name

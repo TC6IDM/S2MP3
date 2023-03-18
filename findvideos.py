@@ -530,6 +530,7 @@ MAX_SEARCH_DEPTH = 5
 # if (exists(DEBUG_FILE_NAME)): os.rename(DEBUG_FILE_NAME, 'DEBUG - ' + ' '.join(random.choice(letters) for i in range(10)) + ' .csv')
 
 #loops every hour
+AUTORETRY = False
 LoopTimeSeconds = 3600
 while True:
     reallydone = False
@@ -677,7 +678,7 @@ while True:
                 f.close()
                 prYellow("RESTARTING")
     itr=1
-    while True:
+    while AUTORETRY: #this is the part that is causing the issue, rate limited too easily
         
         totalplaylists2 = []
         prPurple2(f'DONE ALL PLAYLISTS! ({itr})',end="\r")
@@ -703,7 +704,9 @@ while True:
             prPurple("PLAYLISTS CHANGED, RESTARTING                                                                ")
             time.sleep(5)
             break
-        
+    else:
+        prPurple("DONE ALL PLAYLISTS")
+        break
 
 # load_dotenv()
 # duplicates=[]
