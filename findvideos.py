@@ -133,13 +133,14 @@ def deleteBadCharacters(text):
     text = text.replace("’","'")
     return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
 
-def get_videos(artist,song):
+def get_videos(artist,song,explicit):
     '''Gets and returns the video ID and Title (as seen on youtube)'''
     # print()
     # intitle = "+%23intitle+official+audio+%23intitle+high+quality+%23intitle+HQ"
     # query = youtubeSafeSearch(artist)+"+-+"+youtubeSafeSearch(song)#Old Method
     
     intitleSTANDARD = "#intitle official audio #intitle high quality #intitle HQ"
+    if explicit: intitleSTANDARD += "#intitle explicit"
     querySTANDARD = artist+" - "+song+" "
     
     #ATTEMPTED NEW WAY
@@ -443,8 +444,11 @@ def checkPlaylist(playlist):
             duration_ms = track["track"]["duration_ms"]
             duration_ms = 0 if duration_ms is None or duration_ms == "" else duration_ms
             
+            explicit = track["track"]["explicit"]
+            explicit = False if explicit is None or explicit == "" else explicit
+            
             # write to csv
-            writer.writerow([trackArtists, trackName,albumArtists,albumName,releaseDate,albumPicture,discnumber,tracknumber,index,duration_ms])
+            writer.writerow([trackArtists, trackName,albumArtists,albumName,releaseDate,albumPicture,discnumber,tracknumber,index,duration_ms,explicit])
             #Dan Croll,From Nowhere (Baardsen Remix),albumArtists,The Music of Grand Theft Auto V Vol. 3: The Soundtrack,releaseDate,albumPicture,0,0,13,267000
         pass
     file.close()
@@ -596,7 +600,7 @@ while True:
                         # print(editedTrackInfo+"+offical+audio")
                         lenbefore = 1 if (not exists(DEBUG_FILE_NAME)) else len(pd.read_csv(DEBUG_FILE_NAME)) + 2 
                             
-                        code,title,length,views = get_videos(trackInfo[0],trackInfo[1]) #lists
+                        code,title,length,views = get_videos(trackInfo[0],trackInfo[1],trackInfo[10]) #lists
                         
                         lenafter = len(pd.read_csv(DEBUG_FILE_NAME)) + 1
                             
