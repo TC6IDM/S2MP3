@@ -75,7 +75,7 @@ class MyLogger(object):
         if "'_percent_str'" not in msg: 
             prRed(msg+"\n")
 
-def printBar(name,percentage,eta,speed):
+def printBar(name,percentage,eta,speed): #i am geniuenly proud of this function
     '''prints a bar to see how the download is coming along'''
     bartotalstring = f'\r{name} ||{percentage} ETA: {eta} Speed: {speed} '
     fill = '█'
@@ -140,7 +140,7 @@ def get_videos(artist,song,explicit):
     # query = youtubeSafeSearch(artist)+"+-+"+youtubeSafeSearch(song)#Old Method
     
     intitleSTANDARD = "#intitle official audio #intitle high quality #intitle HQ"
-    if explicit: intitleSTANDARD += "#intitle explicit"
+    if explicit: intitleSTANDARD += " #intitle explicit"
     querySTANDARD = artist+" - "+song+" "
     
     #ATTEMPTED NEW WAY
@@ -516,6 +516,13 @@ def gatekeep(yttitle,artist,song):
     for i in blacklist:
         if (not (i not in yttitle.lower() or (i in artist.lower() or i in song.lower()))): return False #if word is in the title, it must be in the artist or song name
     return True
+
+def gateopen(yttitle):
+    blacklist = ["uncensored",
+                 "explicit"]
+    for i in blacklist:
+        if (i in yttitle.lower()): return True #
+    return False
 #important files
 load_dotenv()
 DEBUG_FILE_NAME = os.getenv("DEBUG_FILE_NAME", "")
@@ -632,10 +639,16 @@ while True:
                                 # print("title: " +title[i]+" length: " +str(length[i])+" url: " +"https://www.youtube.com/watch?v="+code[i]+" title: " +"SpotifyLength: " +str(trackInfo[9].replace("\n",""))+ " YoutubeLength: " +str(playtime_ms)+ " TimeDifference: " +str(timediff)+"\n")
                                 
                                 
-                                if (gatekeep(title[i],trackInfo[0],trackInfo[1]) and timediff <= difference): #see gatekeep function
-                                    possibleSongList.append([views[i],i])
-                                    possibleSongList = sorted(possibleSongList,reverse=True)
-                                    found = 1
+                                if (gatekeep(title[i],trackInfo[0],trackInfo[1])): #see gatekeep function
+                                    if ((timediff <= difference)):
+                                        # print(title[i])
+                                        possibleSongList.append([views[i],i])
+                                        possibleSongList = sorted(possibleSongList,reverse=True)
+                                        found = 1
+                                    elif (trackInfo[10] and gateopen(title[i]) and (timediff <= difference+5000)):
+                                        possibleSongList.append([views[i]+1000000000000,i])
+                                        possibleSongList = sorted(possibleSongList,reverse=True)
+                                        found = 1
                             if found:
                                 link = "https://www.youtube.com/watch?v="+code[possibleSongList[0][1]]
                                 checkmark(link,lenbefore,lenafter)
