@@ -140,7 +140,10 @@ def get_videos(artist,song,explicit):
     # query = youtubeSafeSearch(artist)+"+-+"+youtubeSafeSearch(song)#Old Method
     
     intitleSTANDARD = "#intitle official audio #intitle high quality #intitle HQ"
-    if explicit: intitleSTANDARD += " #intitle explicit"
+    # print(explicit)
+    # print(explicit == "True")
+    if (explicit == "True"): 
+        intitleSTANDARD += " #intitle explicit"
     querySTANDARD = artist+" - "+song+" "
     
     #ATTEMPTED NEW WAY
@@ -517,12 +520,22 @@ def gatekeep(yttitle,artist,song):
         if (not (i not in yttitle.lower() or (i in artist.lower() or i in song.lower()))): return False #if word is in the title, it must be in the artist or song name
     return True
 
-def gateopen(yttitle):
-    blacklist = ["uncensored",
-                 "explicit"]
+def gateopen(yttitle,explicit):
+    blacklistDirty = ["uncensored",
+                 "explicit",]
+    blacklist = ["official",
+                 "high quality",
+                 "hq"]
+    if explicit: 
+        blacklist = blacklist + blacklistDirty
+    
     for i in blacklist:
+        # print(i)
+        # print(yttitle.lower())
+        # print(i in yttitle.lower())
         if (i in yttitle.lower()): return True #
     return False
+
 #important files
 load_dotenv()
 DEBUG_FILE_NAME = os.getenv("DEBUG_FILE_NAME", "")
@@ -572,7 +585,6 @@ while True:
                     dupe = 0
                     songDestination= OUTPUT_FOLDER_NAME+playlistName+"\\"+addZeros(trackInfo[8].replace("\n",""))+trackInfoRemovedSymbols
                     songname = trackInfo[1]
-                    
                     if (exists(songDestination+'.mp3')):
                         #or exists(songDestination+'.webm') or exists(songDestination+'.m4a')
                         prYellow("SKIP "+songname+" Already Downloaded")
@@ -606,7 +618,7 @@ while True:
                         # editedTrackInfo = youtubeSafeSearch(trackInfo[0])+"+-+"+youtubeSafeSearch(trackInfo[1])#Old Method
                         # print(editedTrackInfo+"+offical+audio")
                         lenbefore = 1 if (not exists(DEBUG_FILE_NAME)) else len(pd.read_csv(DEBUG_FILE_NAME)) + 2 
-                            
+                        trackInfo[10] = trackInfo[10].replace("\n","")
                         code,title,length,views = get_videos(trackInfo[0],trackInfo[1],trackInfo[10]) #lists
                         
                         lenafter = len(pd.read_csv(DEBUG_FILE_NAME)) + 1
@@ -640,13 +652,17 @@ while True:
                                 
                                 
                                 if (gatekeep(title[i],trackInfo[0],trackInfo[1])): #see gatekeep function
-                                    if ((timediff <= difference)):
-                                        # print(title[i])
-                                        possibleSongList.append([views[i],i])
+                                    # print("\n",i)
+                                    # print(timediff)
+                                    # print(difference+(int(trackInfo[9])*0.05))
+                                    # print(gateopen(title[i],trackInfo[10]=="True"))
+                                    if (gateopen(title[i],trackInfo[10]=="True") and (timediff <= difference+(int(trackInfo[9])*0.05))):
+                                        possibleSongList.append([views[i]+1000000000000,i])
                                         possibleSongList = sorted(possibleSongList,reverse=True)
                                         found = 1
-                                    elif (trackInfo[10] and gateopen(title[i]) and (timediff <= difference+5000)):
-                                        possibleSongList.append([views[i]+1000000000000,i])
+                                    elif ((timediff <= difference)):
+                                        # print(title[i])
+                                        possibleSongList.append([views[i],i])
                                         possibleSongList = sorted(possibleSongList,reverse=True)
                                         found = 1
                             if found:
