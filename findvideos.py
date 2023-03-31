@@ -523,7 +523,7 @@ def gatekeep(yttitle,artist,song):
 def gateopen(yttitle,explicit):
     blacklistDirty = ["uncensored",
                  "explicit",]
-    blacklist = ["official",
+    blacklist = ["official audio",
                  "high quality",
                  "hq"]
     if explicit: 
