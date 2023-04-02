@@ -525,7 +525,9 @@ def gateopen(yttitle,explicit):
                  "explicit",]
     blacklist = ["official audio",
                  "high quality",
-                 "hq"]
+                 "hq",
+                 "official visualizer",
+                 "visualizer"]
     if explicit: 
         blacklist = blacklist + blacklistDirty
     
@@ -656,13 +658,22 @@ while True:
                                     # print(timediff)
                                     # print(difference+(int(trackInfo[9])*0.05))
                                     # print(gateopen(title[i],trackInfo[10]=="True"))
+                                    cleanerTrackName = re.sub('\<.*?\>', '', trackInfo[1])
+                                    cleanerTrackName = re.sub('\[.*?\]', '', cleanerTrackName)
+                                    cleanerTrackName = re.sub('\{.*?\}', '', cleanerTrackName)
+                                    cleanerTrackName = re.sub('\(.*?\)', '', cleanerTrackName)
+                                    cleanerTrackName = cleanerTrackName.strip()
+                                    nameInTitle = cleanerTrackName.lower() in title[i].lower()
+                                    addto = 0
+                                    if (nameInTitle): addto = 1000000000000
                                     if (gateopen(title[i],trackInfo[10]=="True") and (timediff <= difference+(int(trackInfo[9])*0.05))):
-                                        possibleSongList.append([views[i]+1000000000000,i])
+                                        addto += 1000000000000
+                                        possibleSongList.append([views[i]+addto,i])
                                         possibleSongList = sorted(possibleSongList,reverse=True)
                                         found = 1
-                                    elif ((timediff <= difference)):
+                                    elif ((timediff <= difference) or ((nameInTitle) and (timediff <= difference+(int(trackInfo[9])*0.05)))):
                                         # print(title[i])
-                                        possibleSongList.append([views[i],i])
+                                        possibleSongList.append([views[i]+addto,i])
                                         possibleSongList = sorted(possibleSongList,reverse=True)
                                         found = 1
                             if found:
