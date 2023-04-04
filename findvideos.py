@@ -527,7 +527,8 @@ def gateopen(yttitle,explicit):
                  "high quality",
                  "hq",
                  "official visualizer",
-                 "visualizer"]
+                 "visualizer",
+                 "(audio)"]
     if explicit: 
         blacklist = blacklist + blacklistDirty
     
@@ -662,6 +663,8 @@ while True:
                                     cleanerTrackName = re.sub('\[.*?\]', '', cleanerTrackName)
                                     cleanerTrackName = re.sub('\{.*?\}', '', cleanerTrackName)
                                     cleanerTrackName = re.sub('\(.*?\)', '', cleanerTrackName)
+                                    cleanerTrackName = re.sub(r'[^\w\s]', '', cleanerTrackName)
+                                    cleanerTrackName = re.sub("\s\s+", " ", cleanerTrackName)
                                     cleanerTrackName = cleanerTrackName.strip()
                                     nameInTitle = cleanerTrackName.lower() in title[i].lower()
                                     addto = 0
