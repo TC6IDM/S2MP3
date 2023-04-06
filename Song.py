@@ -11,7 +11,6 @@ from mutagen.id3 import ID3, APIC, error, TXXX
 from os.path import exists
 from extraUtil import *
 
-
 def cleanTrackName(text):
     cleanerTrackName = re.sub('\<.*?\>', '', text)
     cleanerTrackName = re.sub('\[.*?\]', '', cleanerTrackName)
@@ -28,8 +27,44 @@ def addZeros(number):
     if int(number)<1000: return f'(0{number})'
     return f'({number})'
 
-
 class Song:
+    def __init__(self,track,index):
+        self.index=index
+        self.destinationIndex = addZeros(self.index)
+        self.albumArtists = "/".join(
+            [deleteBadCharacters(artist["name"]) for artist in track["track"]["album"]["artists"]]
+        )
+        self.albumArtists = "NULL" if self.albumArtists is None or self.albumArtists == "" else self.albumArtists
+        
+        self.albumPicture = "NULL" if len(track["track"]["album"]["images"])==0 else track["track"]["album"]["images"][0]['url']
+            
+        self.albumName = deleteBadCharacters(track["track"]["album"]["name"])
+        self.albumName = "NULL" if self.albumName is None or self.albumName == "" else self.albumName
+            
+        self.releaseDate = track["track"]["album"]['release_date']
+        self.releaseDate = "NULL" if self.releaseDate is None or self.releaseDate == "" else self.releaseDate
+            
+        self.trackArtists = "/".join(
+            [deleteBadCharacters(artist["name"]) for artist in track["track"]["artists"]]
+        )
+        self.trackArtists = "NULL" if self.trackArtists is None or self.trackArtists == "" else self.trackArtists
+            
+        self.trackName = deleteBadCharacters(track["track"]["name"])# annoying characters
+        self.trackName = "NULL" if self.trackName is None or self.trackName == "" else self.trackName
+        self.cleanTrackName=removeSymbols(self.trackName)
+            
+        self.discnumber = track["track"]["disc_number"]
+        self.discnumber = 0 if self.discnumber is None or self.discnumber == "" else self.discnumber
+            
+        self.tracknumber = track["track"]["track_number"]
+        self.tracknumber = 0 if self.tracknumber is None or self.tracknumber == "" else self.tracknumber
+            
+        self.duration_ms = track["track"]["duration_ms"]
+        self.duration_ms = 0 if self.duration_ms is None or self.duration_ms == "" else self.duration_ms
+            
+        self.explicit = track["track"]["explicit"]
+        self.explicit = False if self.explicit is None or self.explicit == "" else self.explicit
+        
     def get_videos(self):
         '''Gets and returns the video ID and Title (as seen on youtube)'''        
         intitleSTANDARD = "#intitle official audio #intitle high quality #intitle HQ"
@@ -80,44 +115,6 @@ class Song:
                     
             prRed("No suitable video found for "+self.trackName+ " within "+str(difference)+" ms of the origninal")
             difference+=1000
-                            
-    
-    def __init__(self,track,index):
-        self.index=index
-        self.destinationIndex = addZeros(self.index)
-        self.albumArtists = "/".join(
-            [deleteBadCharacters(artist["name"]) for artist in track["track"]["album"]["artists"]]
-        )
-        self.albumArtists = "NULL" if self.albumArtists is None or self.albumArtists == "" else self.albumArtists
-        
-        self.albumPicture = "NULL" if len(track["track"]["album"]["images"])==0 else track["track"]["album"]["images"][0]['url']
-            
-        self.albumName = deleteBadCharacters(track["track"]["album"]["name"])
-        self.albumName = "NULL" if self.albumName is None or self.albumName == "" else self.albumName
-            
-        self.releaseDate = track["track"]["album"]['release_date']
-        self.releaseDate = "NULL" if self.releaseDate is None or self.releaseDate == "" else self.releaseDate
-            
-        self.trackArtists = "/".join(
-            [deleteBadCharacters(artist["name"]) for artist in track["track"]["artists"]]
-        )
-        self.trackArtists = "NULL" if self.trackArtists is None or self.trackArtists == "" else self.trackArtists
-            
-        self.trackName = deleteBadCharacters(track["track"]["name"])# annoying characters
-        self.trackName = "NULL" if self.trackName is None or self.trackName == "" else self.trackName
-        self.cleanTrackName=removeSymbols(self.trackName)
-            
-        self.discnumber = track["track"]["disc_number"]
-        self.discnumber = 0 if self.discnumber is None or self.discnumber == "" else self.discnumber
-            
-        self.tracknumber = track["track"]["track_number"]
-        self.tracknumber = 0 if self.tracknumber is None or self.tracknumber == "" else self.tracknumber
-            
-        self.duration_ms = track["track"]["duration_ms"]
-        self.duration_ms = 0 if self.duration_ms is None or self.duration_ms == "" else self.duration_ms
-            
-        self.explicit = track["track"]["explicit"]
-        self.explicit = False if self.explicit is None or self.explicit == "" else self.explicit
     
     def setDestination(self,destination):
         self.destination = destination
