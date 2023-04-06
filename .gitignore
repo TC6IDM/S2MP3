@@ -10,3 +10,7 @@
 *.code-workspace
 
 test.py
+
+spotify.json
+
+spotify2.json
