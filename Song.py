@@ -76,9 +76,11 @@ class Song:
         totalQ = querySTANDARD+intitleSTANDARD
         enoughResults = False
         while not enoughResults:
+            print("Searching Youtube for "+totalQ+"...")
             s = Search(totalQ)
-            for i in s.results:
-                thisYoutubeSong = YoutubeSong(i.video_id,i.length*1000,i.title,i.views,self)
+            for i,r in enumerate(s.results):
+                prGreen(f'Found {i+1} of {len(s.results)} results {round(100*(i+1) / len(s.results),2)}%                        ',end='\r')
+                thisYoutubeSong = YoutubeSong(r.video_id,r.length*1000,r.title,r.views,self)
                 self.youtubeVideos.append(thisYoutubeSong)
 
             if (len(self.youtubeVideos)<MAX_SEARCH_DEPTH):
@@ -86,6 +88,7 @@ class Song:
                 prRed("QUERY: "+querySTANDARD+intitleSTANDARD+"\nNot enough results found, retrying without intitle")
             else:
                 enoughResults = True
+            print()
         return
     
     def getBestVideo(self):

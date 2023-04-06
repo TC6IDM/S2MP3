@@ -14,3 +14,7 @@ test.py
 spotify.json
 
 spotify2.json
+
+__pycache__/
+.vscode/
+

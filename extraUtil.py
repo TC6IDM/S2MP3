@@ -4,14 +4,12 @@ import re
 import unicodedata
 from dotenv import load_dotenv
 
-def prRed(skk): print("\033[91m{}\033[00m" .format(skk))
-def prRed2(skk,end): print("\033[91m{}\033[00m" .format(skk),end=end)
-def prGreen(skk): print("\033[92m{}\033[00m" .format(skk))
-def prYellow(skk): print("\033[93m{}\033[00m" .format(skk))
-def prCyan(skk): print("\033[96m{}\033[00m" .format(skk))
-def prLightPurple(skk): print("\033[94m{}\033[00m" .format(skk)) 
-def prPurple(skk): print("\033[95m{}\033[00m" .format(skk))
-def prPurple2(skk,end): print("\033[95m{}\033[00m" .format(skk),end=end)
+def prRed(skk,end="\n"): print("\033[91m{}\033[00m" .format(skk),end=end)
+def prGreen(skk,end="\n"): print("\033[92m{}\033[00m" .format(skk),end=end)
+def prYellow(skk,end="\n"): print("\033[93m{}\033[00m" .format(skk),end=end)
+def prCyan(skk,end="\n"): print("\033[96m{}\033[00m" .format(skk),end=end)
+def prLightPurple(skk,end="\n"): print("\033[94m{}\033[00m" .format(skk),end=end) 
+def prPurple(skk,end="\n"): print("\033[95m{}\033[00m" .format(skk),end=end)
 
 load_dotenv()
 DEBUG_FILE_NAME = os.getenv("DEBUG_FILE_NAME", "")
