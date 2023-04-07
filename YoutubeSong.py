@@ -104,14 +104,14 @@ class YoutubeSong:
         if d['status'] == 'finished':
             prGreen("\n"+d['filename'])
             self.parent.setFileData(d['filename'])
-            self.parent.saveToDebug()
             prCyan("File Done!\n")
-
+        
         printBar(self.parent.trackName,d['_percent_str'],d['_eta_str'],d['_speed_str'])
         
         
     def download(self):
         print("Now Downloading:",self.title,"| On Youtube",self.youtubeLink)
+        self.parent.saveToDebug()
         ydl_opts = {
             'format': 'bestaudio/best',
             'postprocessors': [{

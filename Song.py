@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import jsonpickle
@@ -130,10 +131,10 @@ class Song:
     
     def saveToDebug(self):
         json_object = jsonpickle.encode(self)
-        try: os.makedirs(f'{OUTPUT_FOLDER_NAME}\\{self.playlistName}') 
-        except FileExistsError: pass
+        if not os.path.exists('DEBUG/'+self.playlistName):
+            os.makedirs('DEBUG/'+self.playlistName)
         with open(self.debugDestination, "w") as outfile:
-            outfile.write(json_object)
+            outfile.write(json.dumps(json.loads(json_object), indent=4))
     
     def setFileData(self,file):
         # print(data,file)
