@@ -12,7 +12,7 @@ def prLightPurple(skk,end="\n"): print("\033[94m{}\033[00m" .format(skk),end=end
 def prPurple(skk,end="\n"): print("\033[95m{}\033[00m" .format(skk),end=end)
 
 load_dotenv()
-DEBUG_FILE_NAME = os.getenv("DEBUG_FILE_NAME", "")
+DEBUG_FOLDER_NAME = os.getenv("DEBUG_FOLDER_NAME", "")
 OUTPUT_FOLDER_NAME = os.getenv("OUTPUT_FOLDER_NAME","")
 BAR_LENGTH = int(os.getenv("BAR_LENGTH"))
 OUTPUT_FILE_NAME = os.getenv("OUTPUT_FILE_NAME", "")

@@ -33,8 +33,7 @@ def checkPlaylist(playlist,session):
     songList =[]
     
     for index,track in enumerate(tracks,start=1):
-        thisTrack = Song(track,index)
-        thisTrack.setDestination(f'{OUTPUT_FOLDER_NAME}\\{playlistName}\\{thisTrack.destinationIndex} {thisTrack.cleanTrackName}')
+        thisTrack = Song(track,index,playlistName)
         songList.append(thisTrack)
     prGreen(f'Playlist {playlistName} has ben fetched with {len(songList)} songs')
     return playlistName,songList
@@ -42,7 +41,7 @@ def checkPlaylist(playlist,session):
 def downloadPlaylist (currentPlaylist):
     playlistFinished = True
     # authenticate
-    # print("Loading SPotify Credentials")
+    # print("Loading Spotify Credentials")
     client_credentials_manager = SpotifyClientCredentials(
         client_id=CLIENT_ID, client_secret=CLIENT_SECRET
     )
@@ -64,6 +63,7 @@ def downloadPlaylist (currentPlaylist):
     else:
         prYellow("Playlist : "+playlistName+" Restarting\n")
     return playlistFinished
+
 
 file = open(PLAYLIST_FILE_NAME,'r')
 for currentPlaylist in file.readlines():

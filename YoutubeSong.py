@@ -1,9 +1,11 @@
+import json
 import math
 import os
 from contextlib import contextmanager
 import sys
 import youtube_dl
 from extraUtil import *
+import jsonpickle
 
 @contextmanager
 def suppress_stdout():
@@ -47,7 +49,7 @@ class YoutubeSong:
         self.title = title
         self.views = views
         self.parent = parent
-        
+    
     def isNotBad(self):
         blacklistDirty = ["clean"]
         blacklist = ["instrumental",
@@ -66,7 +68,7 @@ class YoutubeSong:
         if self.parent.explicit: 
             blacklist = blacklist + blacklistDirty
         for i in blacklist:
-            if (i in self.title.lower()) and (i not in self.parent.trackArtists.lower()) and (i in self.parent.trackName.lower()): return False #if word is in the title, it must be in the artist or song name
+            if (i in self.title.lower()) and (i not in self.parent.trackArtists.lower()) and (i not in self.parent.trackName.lower()): return False #if word is in the title, it must be in the artist or song name
         return True
 
     def isVeryGood(self):
@@ -102,10 +104,11 @@ class YoutubeSong:
         if d['status'] == 'finished':
             prGreen("\n"+d['filename'])
             self.parent.setFileData(d['filename'])
+            self.parent.saveToDebug()
             prCyan("File Done!\n")
 
         printBar(self.parent.trackName,d['_percent_str'],d['_eta_str'],d['_speed_str'])
-        # print(d['status'])
+        
         
     def download(self):
         print("Now Downloading:",self.title,"| On Youtube",self.youtubeLink)

@@ -1,5 +1,6 @@
 import os
 import re
+import jsonpickle
 from pytube import Search
 from YoutubeSong import YoutubeSong
 import subprocess
@@ -28,7 +29,8 @@ def addZeros(number):
     return f'({number})'
 
 class Song:
-    def __init__(self,track,index):
+    def __init__(self,track,index,playlistName):
+        self.playlistName = playlistName
         self.index=index
         self.destinationIndex = addZeros(self.index)
         self.albumArtists = "/".join(
@@ -65,6 +67,12 @@ class Song:
         self.explicit = track["track"]["explicit"]
         self.explicit = False if self.explicit is None or self.explicit == "" else self.explicit
         
+        self.destination = f'{OUTPUT_FOLDER_NAME}\\{self.playlistName}\\{self.destinationIndex} {self.cleanTrackName}'
+        self.debugDestination = f'{DEBUG_FOLDER_NAME}\\{self.playlistName}\\{self.destinationIndex} {self.cleanTrackName}.json'
+        
+        self.bestfit = None
+        self.youtubeVideos = []
+        
     def get_videos(self):
         '''Gets and returns the video ID and Title (as seen on youtube)'''        
         intitleSTANDARD = "#intitle official audio #intitle high quality #intitle HQ"
@@ -76,7 +84,7 @@ class Song:
         totalQ = querySTANDARD+intitleSTANDARD
         enoughResults = False
         while not enoughResults:
-            print("Searching Youtube for "+totalQ+"...")
+            print("Searching Youtube for "+totalQ)
             s = Search(totalQ)
             for i,r in enumerate(s.results):
                 prGreen(f'Found {i+1} of {len(s.results)} results {round(100*(i+1) / len(s.results),2)}%                        ',end='\r')
@@ -91,7 +99,7 @@ class Song:
             print()
         return
     
-    def getBestVideo(self):
+    def getBestVideo(self): #clean this up
         found = False
         difference = 1000
         possibleSongList=[]
@@ -114,13 +122,18 @@ class Song:
                         possibleSongList = sorted(possibleSongList,reverse=True)
                         found = True
                     if found:
-                        return possibleSongList[0][1]
+                        self.bestfit = possibleSongList[0][1]
+                        return self.bestfit
                     
             prRed("No suitable video found for "+self.trackName+ " within "+str(difference)+" ms of the origninal")
             difference+=1000
     
-    def setDestination(self,destination):
-        self.destination = destination
+    def saveToDebug(self):
+        json_object = jsonpickle.encode(self)
+        try: os.makedirs(f'{OUTPUT_FOLDER_NAME}\\{self.playlistName}') 
+        except FileExistsError: pass
+        with open(self.debugDestination, "w") as outfile:
+            outfile.write(json_object)
     
     def setFileData(self,file):
         # print(data,file)
