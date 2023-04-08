@@ -163,7 +163,7 @@ class Song:
     def setFileData(self,file):
         # print(data,file)
         print("Converting to mp3")
-        audio_file = file.replace(".webm", ".mp3").replace(".m4a", ".mp3")
+        audio_file = re.sub('(\.)(?!.*\.).*$', '.mp3', file) #what the fuck
         if exists(audio_file) : prRed("ERROR converting "+file+" to mp3, possible duplicate");return
         subprocess.run('ffmpeg -i "'+file+'" "'+audio_file+'"',shell=True,capture_output=True)
         os.remove(file)
