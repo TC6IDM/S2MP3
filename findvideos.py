@@ -1,5 +1,6 @@
 import re
 from os.path import exists
+import time
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from Song import Song
@@ -38,6 +39,14 @@ def checkPlaylist(playlist,session):
     prGreen(f'Playlist {playlistName} has ben fetched with {len(songList)} songs')
     return playlistName,songList
 
+def removePartials(parentFolder):
+    if not os.path.exists(parentFolder):
+        os.makedirs(parentFolder)
+        
+    for file in os.listdir(parentFolder):
+        if not file.endswith(".mp3"):
+            os.remove(parentFolder+"/"+file)
+
 def downloadPlaylist (currentPlaylist):
     playlistFinished = True
     # authenticate
@@ -51,6 +60,7 @@ def downloadPlaylist (currentPlaylist):
     validPlaylist=True if currentPlaylist.startswith("https://open.spotify.com/playlist/") else False
     if not validPlaylist: return playlistFinished
     playlistName,songList = checkPlaylist(currentPlaylist,session)
+    removePartials(songList[0].parentFolder)
     for song in songList: 
         if (exists(song.destination+'.mp3')):
             prYellow("SKIP "+song.trackName+" Already Downloaded")

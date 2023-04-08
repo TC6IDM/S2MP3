@@ -68,11 +68,14 @@ class Song:
         self.explicit = track["track"]["explicit"]
         self.explicit = False if self.explicit is None or self.explicit == "" else self.explicit
         
-        self.destination = f'{OUTPUT_FOLDER_NAME}\\{self.playlistName}\\{self.destinationIndex} {self.cleanTrackName}'
-        self.debugDestination = f'{DEBUG_FOLDER_NAME}\\{self.playlistName}\\{self.destinationIndex} {self.cleanTrackName}.json'
+        self.debugParentFolder = f'{DEBUG_FOLDER_NAME}\\{self.playlistName}'
+        self.parentFolder = f'{OUTPUT_FOLDER_NAME}\\{self.playlistName}'
+        self.destination = f'{self.parentFolder}\\{self.destinationIndex} {self.cleanTrackName}'
+        self.debugDestination = f'{self.debugParentFolder}\\{self.destinationIndex} {self.cleanTrackName}.json'
         
         self.bestfit = None
         self.youtubeVideos = []
+        # self.track = track
         
     def get_videos(self):
         '''Gets and returns the video ID and Title (as seen on youtube)'''        
@@ -81,15 +84,15 @@ class Song:
         if (self.explicit == "True"): 
             intitleSTANDARD += " #intitle explicit"
         querySTANDARD = self.trackArtists+" - "+self.trackName+" "
-        self.youtubeVideos = []
         totalQ = querySTANDARD+intitleSTANDARD
         enoughResults = False
         while not enoughResults:
             print("Searching Youtube for "+totalQ)
+            self.youtubeVideos = []
             s = Search(totalQ)
             for i,r in enumerate(s.results):
                 prGreen(f'Found {i+1} of {len(s.results)} results {round(100*(i+1) / len(s.results),2)}%                        ',end='\r')
-                thisYoutubeSong = YoutubeSong(r.video_id,r.length*1000,r.title,r.views,self)
+                thisYoutubeSong = YoutubeSong(self,r)
                 self.youtubeVideos.append(thisYoutubeSong)
 
             if (len(self.youtubeVideos)<MAX_SEARCH_DEPTH):
@@ -131,8 +134,8 @@ class Song:
     
     def saveToDebug(self):
         json_object = jsonpickle.encode(self)
-        if not os.path.exists('DEBUG/'+self.playlistName):
-            os.makedirs('DEBUG/'+self.playlistName)
+        if not os.path.exists(self.debugParentFolder):
+            os.makedirs(self.debugParentFolder)
         with open(self.debugDestination, "w") as outfile:
             outfile.write(json.dumps(json.loads(json_object), indent=4))
     

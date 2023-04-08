@@ -6,16 +6,6 @@ import sys
 import youtube_dl
 from extraUtil import *
 import jsonpickle
-
-@contextmanager
-def suppress_stdout():
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        sys.stdout = devnull
-        try:  
-            yield
-        finally:
-            sys.stdout = old_stdout
             
 class MyLogger(object):
     '''Logs Errors/warnigs/debugs'''
@@ -42,13 +32,14 @@ def printBar(name,percentage,eta,speed): #i am geniuenly proud of this function
 
 
 class YoutubeSong:
-    def __init__(self,id,length,title,views,parent):
-        self.id = id
-        self.youtubeLink="https://www.youtube.com/watch?v="+self.id
-        self.length = length
-        self.title = title
-        self.views = views
+    def __init__(self,parent,youtubeVideo):
+        self.id = youtubeVideo.video_id
+        self.youtubeLink=youtubeVideo.watch_url
+        self.length = youtubeVideo.length*1000
+        self.title = youtubeVideo.title
+        self.views = youtubeVideo.views
         self.parent = parent
+        # self.youtubeVideo = youtubeVideo
     
     def isNotBad(self):
         blacklistDirty = ["clean"]
