@@ -1,11 +1,6 @@
-import json
 import math
-import os
-from contextlib import contextmanager
-import sys
 import youtube_dl
 from extraUtil import *
-import jsonpickle
             
 class MyLogger(object):
     '''Logs Errors/warnigs/debugs'''
@@ -101,6 +96,7 @@ class YoutubeSong:
         
         
     def download(self):
+        print(f'{self.parent.destination}\n{self.parent.debugDestination}')
         print("Now Downloading:",self.title,"| On Youtube",self.youtubeLink)
         self.parent.saveToDebug()
         ydl_opts = {
