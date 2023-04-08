@@ -104,23 +104,24 @@ class Song:
                 self.youtubeVideos.append(thisYoutubeSong)
 
             if (len(self.youtubeVideos)<MAX_SEARCH_DEPTH):
+                prRed(f'Found {len(self.youtubeVideos)} results, not enough, retrying with different query',end='\r')
                 match retries:
                     case 0:
-                        prRed(f'\nQUERY: {self.youtubeSearch}\nRetrying with only the original artist')
+                        prYellow(f'\nQUERY: {self.youtubeSearch}\nRetrying with only the original artist')
                         self.youtubeSearch = self.originalTrackArtist+" - "+self.trackName+" "+intitleSTANDARD
                     case 1:
-                        prRed(f'\nQUERY: {self.youtubeSearch}\nRetrying with only the original artist and without brackets in the track name')
+                        prYellow(f'\nQUERY: {self.youtubeSearch}\nRetrying with only the original artist and without brackets in the track name')
                         self.youtubeSearch = self.originalTrackArtist+" - "+removeBrackets(self.trackName)+" "+intitleSTANDARD
                     case 2:
-                        prRed(f'\nQUERY: {self.youtubeSearch}\nRetrying with only the original artist and without brackets in the track name and without #intitle')
+                        prYellow(f'\nQUERY: {self.youtubeSearch}\nRetrying with only the original artist and without brackets in the track name and without #intitle')
                         self.youtubeSearch = self.originalTrackArtist+" - "+removeBrackets(self.trackName)
                     case _:
                         prRed(f'\nRetry: {retries} Song Skipped')
                 retries+=1
-                prRed(f'NEW QUERY: {self.youtubeSearch}')
+                prYellow(f'NEW QUERY: {self.youtubeSearch}')
             else:
                 enoughResults = True
-            print()
+            # print()
         return
     
     def getBestVideo(self): #clean this up
