@@ -17,3 +17,12 @@ https://github.com/ytdl-org/youtube-dl/issues/31530
 CHANGE TO --------->
 
 'uploader_id': self._search_regex(r'/(?:channel|user)/([^/?&#]+)', owner_profile_url, 'uploader id', fatal=False) if owner_profile_url else None,
+
+2. 
+\Python310\site-packages\pytube\__main__.py
+
+line 384:
+return int(Len if Len is not None else 0)
+
+line 392:
+return int(self.vid_info.get("videoDetails", {}).get("viewCount")) if self.vid_info.get("videoDetails", {}).get("viewCount") is not None else 0
