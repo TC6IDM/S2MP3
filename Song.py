@@ -45,7 +45,7 @@ class Song:
         self.albumArtistsPlain = [deleteBadCharacters(artist["name"]) for artist in track["track"]["album"]["artists"]]
         self.albumArtists = "/".join(self.albumArtistsPlain)
         self.albumArtists = "NULL" if self.albumArtists is None or self.albumArtists == "" else self.albumArtists
-        self.originalAlbumArtist = self.albumArtistsPlain[0]
+        self.originalAlbumArtist = "NULL" if self.albumArtists is None or self.albumArtists == "" or self.albumArtists == "NULL" else self.albumArtistsPlain[0]
        
         self.albumPicture = "NULL" if len(track["track"]["album"]["images"])==0 else track["track"]["album"]["images"][0]['url']
             
@@ -58,7 +58,7 @@ class Song:
         self.trackArtistsPlain = [deleteBadCharacters(artist["name"]) for artist in track["track"]["artists"]]
         self.trackArtists = "/".join(self.trackArtistsPlain)
         self.trackArtists = "NULL" if self.trackArtists is None or self.trackArtists == "" else self.trackArtists
-        self.originalTrackArtist = self.trackArtistsPlain[0]
+        self.originalTrackArtist = "NULL" if self.trackArtists is None or self.trackArtists == "" or self.trackArtists == "NULL" else self.trackArtistsPlain[0]
         
         self.trackName = deleteBadCharacters(track["track"]["name"])# annoying characters
         self.trackName = "NULL" if self.trackName is None or self.trackName == "" else self.trackName
@@ -102,7 +102,7 @@ class Song:
                 prGreen(f'Found {i+1} of {len(s.results)} results {round(100*(i+1) / len(s.results),2)}%                        ',end='\r')
                 thisYoutubeSong = YoutubeSong(self,r)
                 self.youtubeVideos.append(thisYoutubeSong)
-
+            
             if (len(self.youtubeVideos)<MAX_SEARCH_DEPTH):
                 prRed(f'Found {len(self.youtubeVideos)} results, not enough, retrying with different query',end='\r')
                 match retries:
@@ -121,7 +121,6 @@ class Song:
                 prYellow(f'NEW QUERY: {self.youtubeSearch}')
             else:
                 enoughResults = True
-            # print()
         return
     
     def getBestVideo(self): #clean this up
@@ -150,7 +149,7 @@ class Song:
                         self.bestfit = possibleSongList[0][1]
                         print()
                         return self.bestfit
-                    
+            print()        
             prRed("No suitable video found for "+self.trackName+ " within "+str(difference)+" ms of the origninal",end='\r')
             difference+=1000
     def saveToDebug(self):

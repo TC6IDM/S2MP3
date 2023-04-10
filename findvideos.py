@@ -15,6 +15,7 @@ def get_playlist_tracks(sp,username,playlist_id): #slowest part of the program
         tracks.extend(results['items'])
         #precent done
         print(f'Fetching songs {len(tracks)} / {playlistLength} {round(100 * len(tracks) / playlistLength,2)}%                        ',end='\r')
+    print(f'Fetching songs {len(tracks)} / {playlistLength} {round(100 * len(tracks) / playlistLength,2)}%                        ',end='\r')
     print()
     return tracks
 
