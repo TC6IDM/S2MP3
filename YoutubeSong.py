@@ -131,6 +131,6 @@ class YoutubeSong:
             'progress_hooks': [self.my_hook],
             'cookiefile': COOKIE_FILE, #cookies for downloading age restricted videos
         }
-                                    
+        printBar(self.parent.trackName,"0.0%","?","0.00KiB/s")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([self.youtubeLink])

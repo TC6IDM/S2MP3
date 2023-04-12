@@ -6,6 +6,10 @@ make sure you have ffmpeg installed in the proper path
 
 copy all files in the exmaple folder and move them out, remove the example from the file name and change up the values
 
+BOTTLENECKS:
+1. getting results
+2. converting to mp3 
+3. the pause before downloading starts
 
 KNOWN ERRORS:
 1. 
