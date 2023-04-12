@@ -173,7 +173,9 @@ class Song:
         print("Converting to mp3")
         audio_file = re.sub('(\.)(?!.*\.).*$', '.mp3', file) #what the fuck
         if exists(audio_file) : prRed("ERROR converting "+file+" to mp3, possible duplicate");return
-        subprocess.run('ffmpeg -i "'+file+'" "'+audio_file+'"',shell=True,capture_output=True)
+        #not sure which one is faster
+        subprocess.run(f'ffmpeg -i "{file}" "{audio_file}"',shell=True,capture_output=True)
+        # subprocess.run(f'ffmpeg -i "{file}" -vn -ar 44100 -ac 2 -b:a 192k "{audio_file}"',shell=True,capture_output=True)
         os.remove(file)
         prGreen(audio_file)
         print("Editing Metadata")
