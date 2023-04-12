@@ -1,5 +1,7 @@
 import math
+import time
 import youtube_dl
+import yt_dlp
 from extraUtil import *
             
 class MyLogger(object):
@@ -11,20 +13,30 @@ class MyLogger(object):
         pass
 
     def error(self, msg):
-        if "'_percent_str'" not in msg: 
+        if "'_percent_str'" not in msg and "'_eta_str'" not in msg: 
             prRed(msg+"\n")
 
 def printBar(name,percentage,eta,speed): #i am geniuenly proud of this function
     '''prints a bar to see how the download is coming along'''
     bartotalstring = f'\r{name} ||{percentage} ETA: {eta} Speed: {speed} '
     fill = '█'
-    length = BAR_LENGTH - len(bartotalstring) if BAR_LENGTH - len(bartotalstring) > 10 else 10
+    terminalSize = os.get_terminal_size().columns
+    length = terminalSize - len(bartotalstring) if terminalSize - len(bartotalstring) > 10 else 10
     printEnd = ""
     filledLength = int(math.floor((float(percentage[:-1])/100)*length))
     bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{name} |{bar}| {percentage} ETA: {eta} Speed: {speed}    ', end = printEnd)
+    print(f'\r{name} |{bar}| {percentage} ETA: {eta} Speed: {speed}', end = printEnd)
 
-
+# def printBarSHIT(name,template,percentage):
+#     '''prints a bar to see how the download is coming along'''
+#     bartotalstring = f'\r{name} ||{template} '
+#     fill = '█'
+#     terminalSize = os.get_terminal_size().columns
+#     length = terminalSize - len(bartotalstring) if terminalSize - len(bartotalstring) > 10 else 10
+#     printEnd = ""
+#     filledLength = int(math.floor((float(percentage[:-1])/100)*length))
+#     bar = fill * filledLength + '-' * (length - filledLength)
+#     print(f'\r{name} |{bar}| {template}', end = printEnd)
 
 class YoutubeSong:
     def __init__(self,parent,youtubeVideo):
@@ -99,7 +111,7 @@ class YoutubeSong:
             self.parent.setFileData(d['filename'])
             prCyan("File Done!\n")
         
-        printBar(self.parent.trackName,d['_percent_str'],d['_eta_str'],d['_speed_str'])
+        printBar(self.parent.trackName,d['_percent_str'].strip(),d['_eta_str'].strip(),d['_speed_str'].strip())
         
         
     def download(self):
@@ -107,7 +119,7 @@ class YoutubeSong:
         print("Now Downloading:",self.title,"| On Youtube",self.youtubeLink)
         self.parent.saveToDebug()
         ydl_opts = {
-            'format': 'bestaudio/best',
+            'format': 'mp3/bestaudio/best',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -120,5 +132,5 @@ class YoutubeSong:
             'cookiefile': COOKIE_FILE, #cookies for downloading age restricted videos
         }
                                     
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([self.youtubeLink])

@@ -133,7 +133,8 @@ class Song:
         possibleSongList=[]
         oneT=10**12
         while found is None:
-            for currentYoutubeVideo in self.youtubeVideos[0:MAX_SEARCH_DEPTH]:  #first 5 only
+            for i,currentYoutubeVideo in enumerate(self.youtubeVideos[0:MAX_SEARCH_DEPTH]):  #first 5 only
+                # print(f'\nFinding Best Video {i} of {MAX_SEARCH_DEPTH} {100*i/MAX_SEARCH_DEPTH}%                        ',end='\r')
                 currentYoutubeVideo.weight = currentYoutubeVideo.views
                 
                 timediff = abs(int(self.duration_ms)-int(currentYoutubeVideo.length))

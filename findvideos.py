@@ -4,6 +4,8 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from Song import Song
 from extraUtil import *
+from mutagen.mp3 import MP3
+from mutagen.easyid3 import EasyID3  
 
 def get_playlist_tracks(sp,username,playlist_id): #slowest part of the program
     playlistLength = sp.user_playlist(username,playlist_id)['tracks']['total']
@@ -44,9 +46,14 @@ def removePartials(parentFolder):
         os.makedirs(parentFolder)
         
     for file in os.listdir(parentFolder):
-        if not file.endswith(".mp3"):
-            os.remove(parentFolder+"/"+file)
-
+        audio_file = parentFolder+"\\"+file
+        if not audio_file.endswith(".mp3"):
+            os.remove(audio_file)
+        else:
+            audio = MP3(audio_file, ID3=EasyID3)
+            if audio=={}:
+                os.remove(audio_file)
+            
 def downloadPlaylist (currentPlaylist):
     playlistFinished = True
     # authenticate
