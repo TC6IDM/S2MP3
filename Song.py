@@ -99,12 +99,7 @@ class Song:
             print("Searching Youtube for "+self.youtubeSearch)
             self.youtubeVideos = []
             s = Search(self.youtubeSearch)
-            for i,r in enumerate(s.results):
-                prGreen(f'Found {i+1} of {len(s.results)} results {round(100*(i+1) / len(s.results),2)}%                        ',end='\r')
-                thisYoutubeSong = YoutubeSong(self,r)
-                self.youtubeVideos.append(thisYoutubeSong)
-            
-            if (len(self.youtubeVideos)<MAX_SEARCH_DEPTH):
+            if (len(s.results)<MAX_SEARCH_DEPTH):
                 prRed(f'Found {len(self.youtubeVideos)} results, not enough, retrying with different query',end='\r')
                 match retries:
                     case 0:
@@ -120,9 +115,17 @@ class Song:
                         prRed(f'\nRetry: {retries} Song Skipped')
                 retries+=1
                 prYellow(f'NEW QUERY: {self.youtubeSearch}')
-            else:
-                enoughResults = True
-        return
+                continue
+                
+            enoughResults = True 
+            for i,r in enumerate(s.results[0:MAX_SEARCH_DEPTH]):
+                prGreen(f'Found {i+1} of {MAX_SEARCH_DEPTH} results {round(100*(i+1) / MAX_SEARCH_DEPTH,2)}%                        ',end='\r')
+                thisYoutubeSong = YoutubeSong(self,r)
+                self.youtubeVideos.append(thisYoutubeSong)
+            return
+            
+            
+        
     
     def getBestVideo(self):
         found = None
@@ -139,7 +142,7 @@ class Song:
                 currentYoutubeVideo.nameInTitle = self.neatFormatTrackName in currentYoutubeVideo.title.lower()
                 currentYoutubeVideo.goodNameInTitle = currentYoutubeVideo.isVeryGood()
                 currentYoutubeVideo.closeToTime = timediff<=difference
-                if ( currentYoutubeVideo.notWithinTimeLimit or currentYoutubeVideo.badTitle): continue #skip if not in bounds of time limit or has bad names in title
+                if (currentYoutubeVideo.notWithinTimeLimit or currentYoutubeVideo.badTitle): continue #skip if not in bounds of time limit or has bad names in title
                 
                 #ugly ass names :barf: 
                 if currentYoutubeVideo.nameInTitle: currentYoutubeVideo.weight += oneT
