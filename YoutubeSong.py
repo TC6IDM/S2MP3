@@ -65,6 +65,7 @@ class YoutubeSong:
                     "hq",
                     "official visualizer",
                     "visualizer",
+                    "lyrics",
                     "(audio)"]
         if self.parent.explicit: 
             blacklist = blacklist + blacklistDirty

@@ -131,19 +131,21 @@ class Song:
             for i,currentYoutubeVideo in enumerate(self.youtubeVideos):
                 if (i>=MAX_SEARCH_DEPTH): break
                 timediff = abs(int(self.duration_ms)-int(currentYoutubeVideo.length))
+                # print(f"\n{timediff}")
                 if (currentYoutubeVideo.isNotBad()):
                     cleanerTrackName = cleanTrackName(self.trackName)
                     nameInTitle = cleanerTrackName in currentYoutubeVideo.title.lower()
                     addto = 0
+                    # print(f"\n{currentYoutubeVideo.views}\n{cleanerTrackName}\n{nameInTitle}")
                     if (nameInTitle): addto = 1000000000000
                     if (currentYoutubeVideo.isVeryGood() and (timediff <= difference+(int(self.duration_ms)*0.05))):
                         addto += 1000000000000
                         possibleSongList.append([currentYoutubeVideo.views+addto,currentYoutubeVideo])
-                        possibleSongList = sorted(possibleSongList,reverse=True)
+                        # possibleSongList = sorted(possibleSongList,reverse=True)
                         found = True
                     elif ((timediff <= difference) or ((nameInTitle) and (timediff <= difference+(int(self.duration_ms)*0.05)))):
                         possibleSongList.append([currentYoutubeVideo.views+addto,currentYoutubeVideo])
-                        possibleSongList = sorted(possibleSongList,reverse=True)
+                        # possibleSongList = sorted(possibleSongList,reverse=True)
                         found = True
                     if found:
                         self.bestfit = possibleSongList[0][1]
