@@ -33,6 +33,12 @@ class YoutubeSong:
         self.length = youtubeVideo.length*1000
         self.title = youtubeVideo.title
         self.views = youtubeVideo.views
+        self.weight = self.views
+        self.notWithinTimeLimit = False
+        self.badTitle = False
+        self.nameInTitle = False
+        self.goodNameInTitle = False
+        self.closeToTime = False
         self.parent = parent
         # self.youtubeVideo = youtubeVideo
     

@@ -66,6 +66,7 @@ def downloadPlaylist (currentPlaylist):
             prYellow("SKIP "+song.trackName+" Already Downloaded")
         else:
             song.get_videos()#function is slow
+            song.saveToDebug()
             song.getBestVideo().download()
             playlistFinished = False
     if playlistFinished: 

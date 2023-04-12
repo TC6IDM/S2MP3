@@ -21,8 +21,27 @@ CHANGE TO --------->
 2. 
 \Python310\site-packages\pytube\__main__.py
 
-line 384:
-return int(Len if Len is not None else 0)
+line 377-399:
+    @property
+    def length(self) -> int:
+        """Get the video length in seconds.
 
-line 392:
-return int(self.vid_info.get("videoDetails", {}).get("viewCount")) if self.vid_info.get("videoDetails", {}).get("viewCount") is not None else 0
+        :rtype: int
+        """
+        Len = self.vid_info.get('videoDetails', {}).get('lengthSeconds')
+        while (Len is None):
+            self.bypass_age_gate()
+            Len = self.vid_info.get('videoDetails', {}).get('lengthSeconds')
+        return int(Len)
+
+    @property
+    def views(self) -> int:
+        """Get the number of the times the video has been viewed.
+
+        :rtype: int
+        """
+        views = self.vid_info.get("videoDetails", {}).get("viewCount")
+        while (views is None):
+            self.bypass_age_gate()
+            views = self.vid_info.get("videoDetails", {}).get("viewCount")
+        return int(views)

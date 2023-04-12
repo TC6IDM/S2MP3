@@ -63,7 +63,8 @@ class Song:
         self.trackName = deleteBadCharacters(track["track"]["name"])# annoying characters
         self.trackName = "NULL" if self.trackName is None or self.trackName == "" else self.trackName
         self.cleanTrackName=removeSymbols(self.trackName)
-            
+        self.neatFormatTrackName = cleanTrackName(self.trackName)
+        
         self.discnumber = track["track"]["disc_number"]
         self.discnumber = 0 if self.discnumber is None or self.discnumber == "" else self.discnumber
             
@@ -123,37 +124,39 @@ class Song:
                 enoughResults = True
         return
     
-    def getBestVideo(self): #clean this up
-        found = False
-        difference = 1000
+    def getBestVideo(self):
+        found = None
+        difference = 0
         possibleSongList=[]
-        while len(possibleSongList)==0:
-            for i,currentYoutubeVideo in enumerate(self.youtubeVideos):
-                if (i>=MAX_SEARCH_DEPTH): break
+        oneT=10**12
+        while found is None:
+            for currentYoutubeVideo in self.youtubeVideos[0:MAX_SEARCH_DEPTH]:  #first 5 only
+                currentYoutubeVideo.weight = currentYoutubeVideo.views
+                
                 timediff = abs(int(self.duration_ms)-int(currentYoutubeVideo.length))
-                # print(f"\n{timediff}")
-                if (currentYoutubeVideo.isNotBad()):
-                    cleanerTrackName = cleanTrackName(self.trackName)
-                    nameInTitle = cleanerTrackName in currentYoutubeVideo.title.lower()
-                    addto = 0
-                    # print(f"\n{currentYoutubeVideo.views}\n{cleanerTrackName}\n{nameInTitle}")
-                    if (nameInTitle): addto = 1000000000000
-                    if (currentYoutubeVideo.isVeryGood() and (timediff <= difference+(int(self.duration_ms)*0.05))):
-                        addto += 1000000000000
-                        possibleSongList.append([currentYoutubeVideo.views+addto,currentYoutubeVideo])
-                        # possibleSongList = sorted(possibleSongList,reverse=True)
-                        found = True
-                    elif ((timediff <= difference) or ((nameInTitle) and (timediff <= difference+(int(self.duration_ms)*0.05)))):
-                        possibleSongList.append([currentYoutubeVideo.views+addto,currentYoutubeVideo])
-                        # possibleSongList = sorted(possibleSongList,reverse=True)
-                        found = True
-                    if found:
-                        self.bestfit = possibleSongList[0][1]
-                        print()
-                        return self.bestfit
-            print()        
-            prRed("No suitable video found for "+self.trackName+ " within "+str(difference)+" ms of the origninal",end='\r')
+                currentYoutubeVideo.notWithinTimeLimit = timediff > difference+(int(self.duration_ms)*0.05)
+                currentYoutubeVideo.badTitle = not currentYoutubeVideo.isNotBad()
+                currentYoutubeVideo.nameInTitle = self.neatFormatTrackName in currentYoutubeVideo.title.lower()
+                currentYoutubeVideo.goodNameInTitle = currentYoutubeVideo.isVeryGood()
+                currentYoutubeVideo.closeToTime = timediff<=difference
+                if ( currentYoutubeVideo.notWithinTimeLimit or currentYoutubeVideo.badTitle): continue #skip if not in bounds of time limit or has bad names in title
+                
+                #ugly ass names :barf: 
+                if currentYoutubeVideo.nameInTitle: currentYoutubeVideo.weight += oneT
+                if currentYoutubeVideo.goodNameInTitle: currentYoutubeVideo.weight += oneT
+                if currentYoutubeVideo.closeToTime: currentYoutubeVideo.weight += oneT 
+                possibleSongList.append(currentYoutubeVideo)
+                
+            if (len(possibleSongList)!=0):
+                possibleSongList.sort(key=lambda x: x.weight, reverse=True)
+                found = possibleSongList[0]
+                self.bestfit = found
+                print()
+                return self.bestfit
+            print()
+            prRed(f'No suitable video found for {self.trackName} within {difference} ms of the origninal',end='\r')
             difference+=1000
+              
     def saveToDebug(self):
         json_object = jsonpickle.encode(self)
         if not os.path.exists(self.debugParentFolder):
