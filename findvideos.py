@@ -45,7 +45,8 @@ def removePartials(parentFolder):
     if not os.path.exists(parentFolder):
         os.makedirs(parentFolder)
         
-    for file in os.listdir(parentFolder):
+    for i,file in enumerate(os.listdir(parentFolder),start=1):
+        print(f'validating folder {i} / {len(os.listdir(parentFolder))} ({round(100 * i / len(os.listdir(parentFolder)),2)}%)     ',end='\r')
         audio_file = parentFolder+"\\"+file
         if not audio_file.endswith(".mp3"):
             os.remove(audio_file)
@@ -68,6 +69,7 @@ def downloadPlaylist (currentPlaylist):
     if not validPlaylist: return playlistFinished
     playlistName,songList = checkPlaylist(currentPlaylist,session)
     removePartials(songList[0].parentFolder)
+    print()
     for song in songList: 
         if (exists(song.destination+'.mp3')):
             prYellow("SKIP "+song.trackName+" Already Downloaded")
