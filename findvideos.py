@@ -36,7 +36,7 @@ def checkPlaylist(playlist,session):
     songList =[]
     
     for index,track in enumerate(tracks,start=1):
-        thisTrack = Song(track,index,playlistName)
+        thisTrack = Song(track["track"],index,playlistName)
         songList.append(thisTrack)
     prGreen(f'Playlist {playlistName} has ben fetched with {len(songList)} songs')
     return playlistName,songList
@@ -82,8 +82,8 @@ def downloadPlaylist (currentPlaylist):
         prYellow("Playlist : "+playlistName+" Restarting\n")
     return playlistFinished
 
-
-file = open(PLAYLIST_FILE_NAME,'r')
-for currentPlaylist in file.readlines():
-    while not downloadPlaylist(currentPlaylist): pass
-prPurple("DONE ALL PLAYLISTS")
+if __name__ == "__main__":
+    file = open(PLAYLIST_FILE_NAME,'r')
+    for currentPlaylist in file.readlines():
+        while not downloadPlaylist(currentPlaylist): pass
+    prPurple("DONE ALL PLAYLISTS")

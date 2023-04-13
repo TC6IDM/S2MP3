@@ -42,50 +42,52 @@ class Song:
         self.playlistName = playlistName
         self.index=index
         self.destinationIndex = addZeros(self.index)
-        self.albumArtistsPlain = [deleteBadCharacters(artist["name"]) for artist in track["track"]["album"]["artists"]]
-        self.albumArtists = "/".join(self.albumArtistsPlain)
+        self.albumArtistsPlain = "NULL" if "album" not in track.keys() else [deleteBadCharacters(artist["name"]) for artist in track["album"]["artists"]]
+        self.albumArtists = "NULL" if "album" not in track.keys() else "/".join(self.albumArtistsPlain)
         self.albumArtists = "NULL" if self.albumArtists is None or self.albumArtists == "" else self.albumArtists
         self.originalAlbumArtist = "NULL" if self.albumArtists is None or self.albumArtists == "" or self.albumArtists == "NULL" else self.albumArtistsPlain[0]
        
-        self.albumPicture = "NULL" if len(track["track"]["album"]["images"])==0 else track["track"]["album"]["images"][0]['url']
+        self.albumPicture = "NULL" if "album" not in track.keys() or len(track["album"]["images"])==0 else track["album"]["images"][0]['url']
             
-        self.albumName = deleteBadCharacters(track["track"]["album"]["name"])
+        self.albumName = "NULL" if "album" not in track.keys() else deleteBadCharacters(track["album"]["name"])
         self.albumName = "NULL" if self.albumName is None or self.albumName == "" else self.albumName
             
-        self.releaseDate = track["track"]["album"]['release_date']
+        self.releaseDate = "NULL" if "album" not in track.keys() else track["album"]['release_date']
         self.releaseDate = "NULL" if self.releaseDate is None or self.releaseDate == "" else self.releaseDate
         
-        self.trackArtistsPlain = [deleteBadCharacters(artist["name"]) for artist in track["track"]["artists"]]
-        self.trackArtists = "/".join(self.trackArtistsPlain)
+        self.trackArtistsPlain = "NULL" if "artists" not in track.keys() else [deleteBadCharacters(artist["name"]) for artist in track["artists"]]
+        self.trackArtists = "NULL" if "artists" not in track.keys() else "/".join(self.trackArtistsPlain)
         self.trackArtists = "NULL" if self.trackArtists is None or self.trackArtists == "" else self.trackArtists
         self.originalTrackArtist = "NULL" if self.trackArtists is None or self.trackArtists == "" or self.trackArtists == "NULL" else self.trackArtistsPlain[0]
         
-        self.trackName = deleteBadCharacters(track["track"]["name"])# annoying characters
+        self.trackName = "NULL" if "name" not in track.keys() else deleteBadCharacters(track["name"])# annoying characters
         self.trackName = "NULL" if self.trackName is None or self.trackName == "" else self.trackName
         self.cleanTrackName=removeSymbols(self.trackName)
         self.neatFormatTrackName = cleanTrackName(self.trackName)
         
-        self.discnumber = track["track"]["disc_number"]
+        self.discnumber = "NULL" if "disc_number" not in track.keys() else track["disc_number"]
         self.discnumber = 0 if self.discnumber is None or self.discnumber == "" else self.discnumber
             
-        self.tracknumber = track["track"]["track_number"]
+        self.tracknumber = "NULL" if "track_number" not in track.keys() else track["track_number"]
         self.tracknumber = 0 if self.tracknumber is None or self.tracknumber == "" else self.tracknumber
             
-        self.duration_ms = track["track"]["duration_ms"]
+        self.duration_ms = "NULL" if "duration_ms" not in track.keys() else track["duration_ms"]
         self.duration_ms = 0 if self.duration_ms is None or self.duration_ms == "" else self.duration_ms
             
-        self.explicit = track["track"]["explicit"]
+        self.explicit = "NULL" if "explicit" not in track.keys() else track["explicit"]
         self.explicit = False if self.explicit is None or self.explicit == "" else self.explicit
-        
-        self.debugParentFolder = f'{DEBUG_FOLDER_NAME}\\{self.playlistName}'
-        self.parentFolder = f'{OUTPUT_FOLDER_NAME}\\{self.playlistName}'
-        self.destination = f'{self.parentFolder}\\{self.destinationIndex} {self.cleanTrackName}'
-        self.debugDestination = f'{self.debugParentFolder}\\{self.destinationIndex} {self.cleanTrackName}.json'
+        self.setFolderInformation(self.cleanTrackName)
         self.youtubeSearch = ""
         self.bestfit = None
         self.youtubeVideos = []
         # self.track = track
-        
+    
+    def setFolderInformation(self,trackName):
+        self.debugParentFolder = f'{DEBUG_FOLDER_NAME}\\{self.playlistName}'
+        self.parentFolder = f'{OUTPUT_FOLDER_NAME}\\{self.playlistName}'
+        self.destination = f'{self.parentFolder}\\{self.destinationIndex} {trackName}'
+        self.debugDestination = f'{self.debugParentFolder}\\{self.destinationIndex} {trackName}.json'
+            
     def get_videos(self):
         '''Gets and returns the video ID and Title (as seen on youtube)'''        
         intitleSTANDARD = "#intitle official audio #intitle high quality #intitle HQ"
