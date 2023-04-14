@@ -15,7 +15,7 @@ parentFolder = f'{OUTPUT_FOLDER_NAME}\\{playlist_title}'
 removePartials(parentFolder)
 RAM = False
 for index,video_url in enumerate(playlist,start=1):
-    
+    # if (index<=166): continue
     client_credentials_manager = SpotifyClientCredentials(
         client_id=CLIENT_ID, client_secret=CLIENT_SECRET
     )

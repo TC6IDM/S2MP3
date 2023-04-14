@@ -1,6 +1,8 @@
 import json
 import os
 import re
+import time
+import eyed3
 import jsonpickle
 from pytube import Search
 from YoutubeSong import YoutubeSong
@@ -12,6 +14,7 @@ import requests
 from mutagen.id3 import ID3, APIC, error, TXXX
 from os.path import exists
 from extraUtil import *
+from eyed3.id3.frames import ImageFrame
 
 def removeBrackets(text):
     cleanerTrackName = re.sub('\<.*?\>', '', text)
@@ -190,10 +193,10 @@ class Song:
         audio['discnumber'] = str(self.discnumber)
         audio['tracknumber'] = str(self.tracknumber)
         
-        audio.save()
+        audio.save(v2_version = 3)
         prGreen("Metadata Saved")
+        image_file = OUTPUT_FOLDER_NAME+'\\tempImage.jpg'
         
-        image_file = OUTPUT_FOLDER_NAME+'\\tempImage.jfif'
         print("Downloading Album Image")
         if self.albumPicture == "NULL": prRed('Album image Couldn\'t be retrieved\n'); return
         res = requests.get(self.albumPicture, stream = True) 
@@ -204,16 +207,29 @@ class Song:
         else:
             prRed('Album image Couldn\'t be retrieved\n')
             return
-        audio = MP3(audio_file, ID3=ID3)    
-        audio.tags.add(
-        APIC(
-            encoding=3, # 3 is for utf-8
-            mime='image/jfif', # image/jpeg or image/png
-            type=3, # 3 is for the cover image
-            desc=u'Cover',
-            data=open(image_file,'rb').read()
-            )
-        )
-        audio.save()
+        # audio_file = audio_file.replace("\\", "\\\\")
+        # image_file = image_file.replace("\\", "\\\\")
+        audiofile = eyed3.load(audio_file)
+        if (audiofile.tag == None):
+            audiofile.initTag()
+        audiofile.tag.images.set(ImageFrame.FRONT_COVER, open(image_file,'rb').read(), 'image/jpeg')
+        audiofile.tag.save()
+        
+        prGreen("Image Saved")
+        
+        
+        
+        # audio = MP3(audio_file, ID3=ID3)    
+        # audio.tags.add(
+        # APIC(
+        #     encoding=3, # 3 is for utf-8
+        #     mime='image/jfif', # image/jpeg or image/png
+        #     type=3, # 3 is for the cover image
+        #     desc=u'Cover',
+        #     data=open(image_file,'rb').read()
+        #     )
+        # )
+        # audio.save(v1 = 2)
+        # time.sleep(100)
         os.remove(image_file)
         return
