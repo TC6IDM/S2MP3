@@ -207,29 +207,12 @@ class Song:
         else:
             prRed('Album image Couldn\'t be retrieved\n')
             return
-        # audio_file = audio_file.replace("\\", "\\\\")
-        # image_file = image_file.replace("\\", "\\\\")
         audiofile = eyed3.load(audio_file)
         if (audiofile.tag == None):
             audiofile.initTag()
         audiofile.tag.images.set(ImageFrame.FRONT_COVER, open(image_file,'rb').read(), 'image/jpeg')
         audiofile.tag.save()
-        
         prGreen("Image Saved")
         
-        
-        
-        # audio = MP3(audio_file, ID3=ID3)    
-        # audio.tags.add(
-        # APIC(
-        #     encoding=3, # 3 is for utf-8
-        #     mime='image/jfif', # image/jpeg or image/png
-        #     type=3, # 3 is for the cover image
-        #     desc=u'Cover',
-        #     data=open(image_file,'rb').read()
-        #     )
-        # )
-        # audio.save(v1 = 2)
-        # time.sleep(100)
         os.remove(image_file)
         return
