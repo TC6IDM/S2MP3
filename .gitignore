@@ -2,8 +2,8 @@
 !example/
 !.gitignore
 !extraUtil.py
-!findvideos.py
+!SpotifyToMp3.py
 !README.md
 !Song.py
 !YoutubeSong.py
-!maxdownload.py
+!YoutubeToMp3.py
