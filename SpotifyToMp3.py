@@ -67,8 +67,9 @@ def removePartials(songList):
 
     print()
     for file in removeFiles:
-        prRed("Removing "+file)
-        os.remove(file)
+        if os.path.exists(file):
+            prRed("Removing "+file)
+            os.remove(file)
     
     
             
@@ -108,4 +109,9 @@ def run():
     prPurple("DONE ALL PLAYLISTS")
     
 if __name__ == "__main__":
-    run()
+    stressTest = True
+    stressTestPlaylist = "https://open.spotify.com/playlist/0gnLoConJALD8SVqZyP8I1?si=149eda709fcc4426"
+    if stressTest:
+        while not downloadPlaylist(stressTestPlaylist): pass
+    else:
+        run()

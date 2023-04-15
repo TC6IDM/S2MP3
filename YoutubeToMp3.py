@@ -6,13 +6,13 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from extraUtil import *
 import spotipy
 
-from findvideos import removePartials,run
+from SpotifyToMp3 import removePartials,run
 
 playlist_url = 'https://www.youtube.com/playlist?list=PLXOSYmGS3kcMNkl2mhpvf7GKamtnEwVAh'
 playlist_title = 'Max Playlist'
 playlist = Playlist(playlist_url)
 parentFolder = f'{OUTPUT_FOLDER_NAME}\\{playlist_title}'
-removePartials(parentFolder)
+# removePartials(parentFolder)
 RAM = True
 print()
 for index,video_url in enumerate(playlist,start=1):
