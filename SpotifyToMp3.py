@@ -1,8 +1,9 @@
 import re
 from os.path import exists
+import time
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from Song import Song
+from Song import Song, addZeros
 from extraUtil import *
 from mutagen.mp3 import MP3
 from mutagen.easyid3 import EasyID3  
@@ -41,19 +42,35 @@ def checkPlaylist(playlist,session):
     prGreen(f'Playlist {playlistName} has ben fetched with {len(songList)} songs')
     return playlistName,songList
 
-def removePartials(parentFolder):
+def removePartials(songList):
+    parentFolder = songList[0].parentFolder
     if not os.path.exists(parentFolder):
         os.makedirs(parentFolder)
         
+    removeFiles = []
+    count = 0
     for i,file in enumerate(os.listdir(parentFolder),start=1):
         print(f'validating folder {i} / {len(os.listdir(parentFolder))} ({round(100 * i / len(os.listdir(parentFolder)),2)}%)     ',end='\r')
         audio_file = parentFolder+"\\"+file
-        if not audio_file.endswith(".mp3"):
-            os.remove(audio_file)
+        if (not songList[count].destination+'.mp3' == audio_file):
+            removeFiles.append(audio_file)
+        else:
+            count+=1
+            
+        if not audio_file.endswith(".mp3") :
+            removeFiles.append(audio_file)
+
         else:
             audio = MP3(audio_file, ID3=EasyID3)
             if audio=={}:
-                os.remove(audio_file)
+                removeFiles.append(audio_file)
+
+    print()
+    for file in removeFiles:
+        prRed("Removing "+file)
+        os.remove(file)
+    
+    
             
 def downloadPlaylist (currentPlaylist):
     playlistFinished = True
@@ -68,8 +85,7 @@ def downloadPlaylist (currentPlaylist):
     validPlaylist=True if currentPlaylist.startswith("https://open.spotify.com/playlist/") else False
     if not validPlaylist: return playlistFinished
     playlistName,songList = checkPlaylist(currentPlaylist,session)
-    removePartials(songList[0].parentFolder)
-    print()
+    removePartials(songList)
     for song in songList: 
         if (exists(song.destination+'.mp3')):
             prYellow("SKIP "+song.trackName+" Already Downloaded")
