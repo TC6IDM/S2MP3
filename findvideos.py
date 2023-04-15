@@ -84,8 +84,12 @@ def downloadPlaylist (currentPlaylist):
         prYellow("Playlist : "+playlistName+" Restarting\n")
     return playlistFinished
 
-if __name__ == "__main__":
+
+def run():
     file = open(PLAYLIST_FILE_NAME,'r')
     for currentPlaylist in file.readlines():
         while not downloadPlaylist(currentPlaylist): pass
     prPurple("DONE ALL PLAYLISTS")
+    
+if __name__ == "__main__":
+    run()

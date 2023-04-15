@@ -6,14 +6,15 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from extraUtil import *
 import spotipy
 
-from findvideos import removePartials
+from findvideos import removePartials,run
 
 playlist_url = 'https://www.youtube.com/playlist?list=PLXOSYmGS3kcMNkl2mhpvf7GKamtnEwVAh'
 playlist_title = 'Max Playlist'
 playlist = Playlist(playlist_url)
 parentFolder = f'{OUTPUT_FOLDER_NAME}\\{playlist_title}'
 removePartials(parentFolder)
-RAM = False
+RAM = True
+print()
 for index,video_url in enumerate(playlist,start=1):
     # if (index<=166): continue
     client_credentials_manager = SpotifyClientCredentials(
@@ -26,6 +27,7 @@ for index,video_url in enumerate(playlist,start=1):
     for file in os.listdir(parentFolder):
         if file.startswith(addZeros(index)):
             skip = True
+            print(f"SKIP {addZeros(index)   }",end="\r")
             break
     if skip: continue
     results = session.search(q=video.title, limit=1)
@@ -37,9 +39,11 @@ for index,video_url in enumerate(playlist,start=1):
         newsong.bestfit = video
         newsong.saveToDebug()
         if not RAM: userinput = input(f'{addZeros(index)} {video.title} Good? (Y/N/S):').lower() 
+        else :userinput = "ram"
         if userinput == "ram": RAM = True
         if userinput == "y" or RAM: 
             video.download()
             break
         if userinput == "s": break
         results = session.next(results['tracks'])
+run()
