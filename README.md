@@ -5,6 +5,10 @@ make sure you have ffmpeg installed in the proper path
 
 copy all files in the exmaple folder and move them out, remove the example from the file name and change up the values
 
+for the cookie file: https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp
+
+I made a question on ytdlp! https://github.com/yt-dlp/yt-dlp/issues/6847
+
 FATAL ERRORS:
 C:\Users\Owner\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\pytube\__main__.py
 pytube.exceptions.AgeRestrictedError: Gu6GUBT0sIw is age restricted, and can't be accessed without logging in.

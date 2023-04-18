@@ -1,12 +1,11 @@
 import re
 from os.path import exists
-import time
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from Song import Song, addZeros
-from extraUtil import *
+from Song import Song
 from mutagen.mp3 import MP3
-from mutagen.easyid3 import EasyID3  
+from mutagen.easyid3 import EasyID3
+from extraUtil import *
 
 def get_playlist_tracks(sp,username,playlist_id): #slowest part of the program
     playlistLength = sp.user_playlist(username,playlist_id)['tracks']['total']
@@ -23,12 +22,10 @@ def get_playlist_tracks(sp,username,playlist_id): #slowest part of the program
     return tracks
 
 def checkPlaylist(playlist,session):
-    # print("regexing playlist")
     if match := re.match(r"https://open.spotify.com/playlist/(.*)\?", playlist):
         playlist_uri = match.groups()[0]
     else:
         raise ValueError("Expected format: https://open.spotify.com/playlist/...")
-    # print("Done regex")
     # get list of tracks in a given playlist (note: max playlist length 100)
     
     playlistName =deleteBadCharacters(removeSymbols(session.user_playlist(USERNAME,playlist_uri)["name"]))
@@ -48,22 +45,19 @@ def removePartials(songList):
         os.makedirs(parentFolder)
         
     removeFiles = []
-    count = 0
     for i,file in enumerate(os.listdir(parentFolder),start=1):
         print(f'validating folder {i} / {len(os.listdir(parentFolder))} ({round(100 * i / len(os.listdir(parentFolder)),2)}%)     ',end='\r')
         audio_file = parentFolder+"\\"+file
-        if (not songList[count].destination+'.mp3' == audio_file):
+        if not re.match(r"^\(\d{4}\).+\.mp3$",file):
             removeFiles.append(audio_file)
         else:
-            count+=1
-            
-        if not audio_file.endswith(".mp3") :
-            removeFiles.append(audio_file)
-
-        else:
-            audio = MP3(audio_file, ID3=EasyID3)
-            if audio=={}:
-                removeFiles.append(audio_file)
+            songNumber = int(re.search(r'\((\d{4})\)', file).group(1))
+            if not songList[songNumber-1].destination+'.mp3' == audio_file:
+                if "$$" not in audio_file: removeFiles.append(audio_file) # https://github.com/yt-dlp/yt-dlp/issues/6847
+            else:
+                audio = MP3(audio_file, ID3=EasyID3)
+                if audio=={}:
+                    removeFiles.append(audio_file)
 
     print()
     for file in removeFiles:
@@ -76,19 +70,17 @@ def removePartials(songList):
 def downloadPlaylist (currentPlaylist):
     playlistFinished = True
     # authenticate
-    # print("Loading Spotify Credentials")
     client_credentials_manager = SpotifyClientCredentials(
         client_id=CLIENT_ID, client_secret=CLIENT_SECRET
     )
     # create spotify session object
     session = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-    # print("done")
     validPlaylist=True if currentPlaylist.startswith("https://open.spotify.com/playlist/") else False
     if not validPlaylist: return playlistFinished
     playlistName,songList = checkPlaylist(currentPlaylist,session)
     removePartials(songList)
     for song in songList: 
-        if (exists(song.destination+'.mp3')):
+        if (exists(song.destination+'.mp3') or "$$$" in song.trackName):
             prYellow("SKIP "+song.trackName+" Already Downloaded")
         else:
             song.get_videos()#function is slow
@@ -109,9 +101,10 @@ def run():
     prPurple("DONE ALL PLAYLISTS")
     
 if __name__ == "__main__":
-    stressTest = True
+    stressTest = False
     stressTestPlaylist = "https://open.spotify.com/playlist/0gnLoConJALD8SVqZyP8I1?si=149eda709fcc4426"
     if stressTest:
         while not downloadPlaylist(stressTestPlaylist): pass
+        prPurple("Stress Test Done")
     else:
         run()

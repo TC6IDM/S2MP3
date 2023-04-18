@@ -1,18 +1,14 @@
 import json
 import os
 import re
-import time
 import eyed3
 import jsonpickle
 from pytube import Search
 from YoutubeSong import YoutubeSong
-import subprocess
 from mutagen.mp3 import MP3
 from mutagen.easyid3 import EasyID3  
 import shutil
 import requests
-from mutagen.id3 import ID3, APIC, error, TXXX
-from os.path import exists
 from extraUtil import *
 from eyed3.id3.frames import ImageFrame
 
@@ -28,9 +24,9 @@ def removePunctuation(text):
     cleanerTrackName = re.sub("\s\s+", " ", cleanerTrackName)
     return cleanerTrackName
 
-def cleanTrackName(text):
+def cleanTrackName2(text):
     cleanerTrackName = removeBrackets(text)
-    cleanerTrackName = removePunctuation(text)
+    cleanerTrackName = removePunctuation(cleanerTrackName)
     cleanerTrackName = cleanerTrackName.strip()
     return cleanerTrackName.lower()
 
@@ -66,8 +62,7 @@ class Song:
         self.trackName = "NULL" if "name" not in track.keys() else deleteBadCharacters(track["name"])# annoying characters
         self.trackName = "NULL" if self.trackName is None or self.trackName == "" else self.trackName
         self.cleanTrackName=removeSymbols(self.trackName)
-        self.neatFormatTrackName = cleanTrackName(self.trackName)
-        
+        self.neatFormatTrackName = cleanTrackName2(self.trackName)
         self.discnumber = "NULL" if "disc_number" not in track.keys() else track["disc_number"]
         self.discnumber = 0 if self.discnumber is None or self.discnumber == "" else self.discnumber
             
@@ -83,13 +78,13 @@ class Song:
         self.youtubeSearch = ""
         self.bestfit = None
         self.youtubeVideos = []
-        # self.track = track
     
     def setFolderInformation(self,trackName):
         self.debugParentFolder = f'{DEBUG_FOLDER_NAME}\\{self.playlistName}'
         self.parentFolder = f'{OUTPUT_FOLDER_NAME}\\{self.playlistName}'
         self.destination = f'{self.parentFolder}\\{self.destinationIndex} {trackName}'
         self.debugDestination = f'{self.debugParentFolder}\\{self.destinationIndex} {trackName}.json'
+        self.finalDestination = ""
             
     def get_videos(self):
         '''Gets and returns the video ID and Title (as seen on youtube)'''        
@@ -174,17 +169,8 @@ class Song:
             outfile.write(json.dumps(json.loads(json_object), indent=4))
     
     def setFileData(self,file):
-        # print(data,file)
-        print("Converting to mp3")
-        audio_file = re.sub('(\.)(?!.*\.).*$', '.mp3', file) #what the fuck
-        if exists(audio_file) : prRed("ERROR converting "+file+" to mp3, possible duplicate");return
-        #not sure which one is faster
-        subprocess.run(f'ffmpeg -i "{file}" "{audio_file}"',shell=True,capture_output=True)
-        # subprocess.run(f'ffmpeg -i "{file}" -vn -ar 44100 -ac 2 -b:a 192k "{audio_file}"',shell=True,capture_output=True)
-        os.remove(file)
-        prGreen(audio_file)
         print("Editing Metadata")
-        audio = MP3(audio_file, ID3=EasyID3)
+        audio = MP3(file, ID3=EasyID3)
         audio['artist'] = self.trackArtists
         audio['title'] = self.trackName
         audio['albumartist'] = self.albumArtists
@@ -207,7 +193,7 @@ class Song:
         else:
             prRed('Album image Couldn\'t be retrieved\n')
             return
-        audiofile = eyed3.load(audio_file)
+        audiofile = eyed3.load(file)
         if (audiofile.tag == None):
             audiofile.initTag()
         audiofile.tag.images.set(ImageFrame.FRONT_COVER, open(image_file,'rb').read(), 'image/jpeg')

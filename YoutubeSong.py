@@ -25,17 +25,6 @@ def printBar(name,percentage,eta,speed): #i am geniuenly proud of this function
     bar = fill * filledLength + '-' * (length - filledLength)
     print(f'\r{name} |{bar}| {percentage} ETA: {eta} Speed: {speed}', end = printEnd)
 
-# def printBarSHIT(name,template,percentage):
-#     '''prints a bar to see how the download is coming along'''
-#     bartotalstring = f'\r{name} ||{template} '
-#     fill = '█'
-#     terminalSize = os.get_terminal_size().columns
-#     length = terminalSize - len(bartotalstring) if terminalSize - len(bartotalstring) > 10 else 10
-#     printEnd = ""
-#     filledLength = int(math.floor((float(percentage[:-1])/100)*length))
-#     bar = fill * filledLength + '-' * (length - filledLength)
-#     print(f'\r{name} |{bar}| {template}', end = printEnd)
-
 class YoutubeSong:
     def __init__(self,parent,youtubeVideo):
         self.id = youtubeVideo.video_id
@@ -105,11 +94,12 @@ class YoutubeSong:
             '_total_bytes_str': '3.45MiB'
             '''
         if d['status'] == 'finished':
-            prGreen("\n"+d['filename'])
-            self.parent.setFileData(d['filename'])
-            prCyan("File Done!\n")
+            self.parent.finalDestination = re.sub('(\.)(?!.*\.).*$', '.mp3', d['filename']) #what the fuck
+            prGreen(f'\n{self.parent.finalDestination}')
+            print("Converting to mp3")
         
-        printBar(self.parent.trackName,d['_percent_str'].strip(),d['_eta_str'].strip(),d['_speed_str'].strip())
+        else:
+            printBar(self.parent.trackName,d['_percent_str'].strip(),d['_eta_str'].strip(),d['_speed_str'].strip())
         
         
     def download(self):
@@ -132,3 +122,7 @@ class YoutubeSong:
         printBar(self.parent.trackName,"0.0%","?","0.00KiB/s")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([self.youtubeLink])
+            newDestination = self.parent.finalDestination
+            prGreen(newDestination)
+            self.parent.setFileData(newDestination)
+            prCyan("File Done!\n")
