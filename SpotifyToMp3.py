@@ -1,5 +1,6 @@
 import re
 from os.path import exists
+import time
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from Song import Song
@@ -50,14 +51,32 @@ def removePartials(songList):
         audio_file = parentFolder+"\\"+file
         if not re.match(r"^\(\d{4}\).+\.mp3$",file):
             removeFiles.append(audio_file)
-        else:
-            songNumber = int(re.search(r'\((\d{4})\)', file).group(1))
-            if not songList[songNumber-1].destination+'.mp3' == audio_file:
-                if "$$" not in audio_file: removeFiles.append(audio_file) # https://github.com/yt-dlp/yt-dlp/issues/6847
-            else:
-                audio = MP3(audio_file, ID3=EasyID3)
-                if audio=={}:
-                    removeFiles.append(audio_file)
+            continue
+        songNumber = int(re.search(r'\((\d{4})\)', file).group(1))
+        if not songList[songNumber-1].destination+'.mp3' == audio_file:
+            if "$$" not in audio_file: 
+                removeFiles.append(audio_file) # https://github.com/yt-dlp/yt-dlp/issues/6847
+                continue
+        audio = MP3(audio_file, ID3=EasyID3)
+        if audio=={}:
+            removeFiles.append(audio_file)
+            continue
+        # print(audio['date'][0] == songList[songNumber-1].releaseDate or audio['date'][0] == re.search('^([^\\-]*)',songList[songNumber-1].releaseDate).group(1))
+        # if not (audio['date'][0] == songList[songNumber-1].releaseDate or audio['date'][0] == re.search('^([^\\-]*)',songList[songNumber-1].releaseDate).group(1)):
+        #     print(audio['date'])
+        #     print(audio['date'][0])
+        #     print(songList[songNumber-1].releaseDate)
+        #     print(re.search('^([^\\-]*)',songList[songNumber-1].releaseDate).group(1))
+        #     time.sleep(5)
+        if (not (audio['artist'][0] == songList[songNumber-1].trackArtists) or 
+            not (audio['title'][0] == songList[songNumber-1].trackName) or 
+            not (audio['albumartist'][0] == songList[songNumber-1].albumArtists) or 
+            not (audio['album'][0] == songList[songNumber-1].albumName) or 
+            not (audio['date'][0] == songList[songNumber-1].releaseDate or audio['date'][0] == re.search('^([^\\-]*)',songList[songNumber-1].releaseDate).group(1)) or 
+            not (audio['discnumber'][0] == str(songList[songNumber-1].discnumber)) or 
+            not (audio['tracknumber'][0] == str(songList[songNumber-1].tracknumber))):
+            removeFiles.append(audio_file)
+                    
 
     print()
     for file in removeFiles:
@@ -101,7 +120,7 @@ def run():
     prPurple("DONE ALL PLAYLISTS")
     
 if __name__ == "__main__":
-    stressTest = False
+    stressTest = True
     stressTestPlaylist = "https://open.spotify.com/playlist/0gnLoConJALD8SVqZyP8I1?si=149eda709fcc4426"
     if stressTest:
         while not downloadPlaylist(stressTestPlaylist): pass

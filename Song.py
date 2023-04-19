@@ -41,39 +41,39 @@ class Song:
         self.playlistName = playlistName
         self.index=index
         self.destinationIndex = addZeros(self.index)
-        self.albumArtistsPlain = "NULL" if "album" not in track.keys() else [deleteBadCharacters(artist["name"]) for artist in track["album"]["artists"]]
-        self.albumArtists = "NULL" if "album" not in track.keys() else "/".join(self.albumArtistsPlain)
-        self.albumArtists = "NULL" if self.albumArtists is None or self.albumArtists == "" else self.albumArtists
-        self.originalAlbumArtist = "NULL" if self.albumArtists is None or self.albumArtists == "" or self.albumArtists == "NULL" else self.albumArtistsPlain[0]
+        self.albumArtistsPlain = "NULL" if track is None or "album" not in track.keys() else [deleteBadCharacters(artist["name"]) for artist in track["album"]["artists"]]
+        self.albumArtists = "NULL" if track is None or "album" not in track.keys() else "/".join(self.albumArtistsPlain)
+        self.albumArtists = "NULL" if track is None or self.albumArtists is None or self.albumArtists == "" else self.albumArtists
+        self.originalAlbumArtist = "NULL" if track is None or self.albumArtists is None or self.albumArtists == "" or self.albumArtists == "NULL" else self.albumArtistsPlain[0]
        
-        self.albumPicture = "NULL" if "album" not in track.keys() or len(track["album"]["images"])==0 else track["album"]["images"][0]['url']
+        self.albumPicture = "NULL" if track is None or "album" not in track.keys() or len(track["album"]["images"])==0 else track["album"]["images"][0]['url']
             
-        self.albumName = "NULL" if "album" not in track.keys() else deleteBadCharacters(track["album"]["name"])
-        self.albumName = "NULL" if self.albumName is None or self.albumName == "" else self.albumName
+        self.albumName = "NULL" if track is None or "album" not in track.keys() else deleteBadCharacters(track["album"]["name"])
+        self.albumName = "NULL" if track is None or self.albumName is None or self.albumName == "" else self.albumName
             
-        self.releaseDate = "NULL" if "album" not in track.keys() else track["album"]['release_date']
-        self.releaseDate = "NULL" if self.releaseDate is None or self.releaseDate == "" else self.releaseDate
+        self.releaseDate = "NULL" if track is None or "album" not in track.keys() else track["album"]['release_date']
+        self.releaseDate = "NULL" if track is None or self.releaseDate is None or self.releaseDate == "" else self.releaseDate #re.search('^([^\\-]*)',self.releaseDate).group(1)
         
-        self.trackArtistsPlain = "NULL" if "artists" not in track.keys() else [deleteBadCharacters(artist["name"]) for artist in track["artists"]]
-        self.trackArtists = "NULL" if "artists" not in track.keys() else "/".join(self.trackArtistsPlain)
-        self.trackArtists = "NULL" if self.trackArtists is None or self.trackArtists == "" else self.trackArtists
-        self.originalTrackArtist = "NULL" if self.trackArtists is None or self.trackArtists == "" or self.trackArtists == "NULL" else self.trackArtistsPlain[0]
+        self.trackArtistsPlain = "NULL" if track is None or "artists" not in track.keys() else [deleteBadCharacters(artist["name"]) for artist in track["artists"]]
+        self.trackArtists = "NULL" if track is None or "artists" not in track.keys() else "/".join(self.trackArtistsPlain)
+        self.trackArtists = "NULL" if track is None or self.trackArtists is None or self.trackArtists == "" else self.trackArtists
+        self.originalTrackArtist = "NULL" if track is None or self.trackArtists is None or self.trackArtists == "" or self.trackArtists == "NULL" else self.trackArtistsPlain[0]
         
-        self.trackName = "NULL" if "name" not in track.keys() else deleteBadCharacters(track["name"])# annoying characters
-        self.trackName = "NULL" if self.trackName is None or self.trackName == "" else self.trackName
+        self.trackName = "NULL" if track is None or "name" not in track.keys() else deleteBadCharacters(track["name"])# annoying characters
+        self.trackName = "NULL" if track is None or self.trackName is None or self.trackName == "" else self.trackName
         self.cleanTrackName=removeSymbols(self.trackName)
         self.neatFormatTrackName = cleanTrackName2(self.trackName)
-        self.discnumber = "NULL" if "disc_number" not in track.keys() else track["disc_number"]
-        self.discnumber = 0 if self.discnumber is None or self.discnumber == "" else self.discnumber
+        self.discnumber = "NULL" if track is None or "disc_number" not in track.keys() else track["disc_number"]
+        self.discnumber = 0 if track is None or self.discnumber is None or self.discnumber == "" else self.discnumber
             
-        self.tracknumber = "NULL" if "track_number" not in track.keys() else track["track_number"]
-        self.tracknumber = 0 if self.tracknumber is None or self.tracknumber == "" else self.tracknumber
+        self.tracknumber = "NULL" if track is None or "track_number" not in track.keys() else track["track_number"]
+        self.tracknumber = 0 if track is None or self.tracknumber is None or self.tracknumber == "" else self.tracknumber
             
-        self.duration_ms = "NULL" if "duration_ms" not in track.keys() else track["duration_ms"]
-        self.duration_ms = 0 if self.duration_ms is None or self.duration_ms == "" else self.duration_ms
+        self.duration_ms = "NULL" if track is None or "duration_ms" not in track.keys() else track["duration_ms"]
+        self.duration_ms = 0 if track is None or self.duration_ms is None or self.duration_ms == "" else self.duration_ms
             
-        self.explicit = "NULL" if "explicit" not in track.keys() else track["explicit"]
-        self.explicit = False if self.explicit is None or self.explicit == "" else self.explicit
+        self.explicit = "NULL" if track is None or "explicit" not in track.keys() else track["explicit"]
+        self.explicit = False if track is None or self.explicit is None or self.explicit == "" else self.explicit
         self.setFolderInformation(self.cleanTrackName)
         self.youtubeSearch = ""
         self.bestfit = None
